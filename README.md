@@ -37,17 +37,29 @@ python3.12 -m venv .venv
 source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 
-# 4. Run
+# 4. Create the tables
+alembic upgrade head
+
+# 5. Run
 uvicorn app.main:app --reload --port 8000
 ```
+
+The full DDL is also available as [db/schema.sql](db/schema.sql) (generated from the migrations
+with `make schema`).
 
 Shortcuts are available in the [Makefile](Makefile) (`make up`, `make install`, `make run`, `make test`, `make lint`).
 
 ## Running tests
 
 ```bash
-pytest
+pytest                                   # all tests
+pytest --cov=app --cov-report=term       # with coverage
 ```
+
+Tests run against a separate `sales_test` database, created automatically by the MySQL container.
+The schema is built from the real Alembic migrations at the start of each run, and every table is
+emptied after each test. As a safety guard, the suite refuses to run unless the database name ends
+in `_test`.
 
 ## Project structure
 

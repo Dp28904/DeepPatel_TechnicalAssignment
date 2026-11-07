@@ -5,8 +5,10 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.core.database import is_lock_conflict
 from app.core.exceptions import AppError
 from app.core.logging import request_id_var
 
@@ -67,6 +69,21 @@ def register_error_handlers(app: FastAPI) -> None:
             content=error_body(code, message),
             headers=getattr(exc, "headers", None),
         )
+
+    @app.exception_handler(OperationalError)
+    async def handle_operational_error(request: Request, exc: OperationalError):
+        # Two requests competing for the same rows (deadlock / lock wait timeout):
+        # the transaction was rolled back, so it is safe for the client to retry.
+        if is_lock_conflict(exc):
+            logger.warning("Lock conflict on %s %s", request.method, request.url.path)
+            return JSONResponse(
+                status_code=409,
+                content=error_body(
+                    "lock_conflict",
+                    "This record is being updated by another request. Please try again.",
+                ),
+            )
+        return await handle_unexpected_error(request, exc)
 
     @app.exception_handler(Exception)
     async def handle_unexpected_error(request: Request, exc: Exception):

@@ -3,10 +3,12 @@
 from pathlib import Path
 
 from fastapi import APIRouter, FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import get_settings
-from app.core.error_handlers import register_error_handlers
+from app.core.database import ping_database
+from app.core.error_handlers import error_body, register_error_handlers
 from app.core.logging import RequestIdMiddleware, configure_logging
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -15,8 +17,14 @@ health_router = APIRouter(prefix="/api", tags=["health"])
 
 
 @health_router.get("/health")
-def health() -> dict:
-    return {"status": "ok"}
+def health():
+    """Liveness + database connectivity check."""
+    if not ping_database():
+        return JSONResponse(
+            status_code=503,
+            content=error_body("database_unavailable", "The database is not reachable."),
+        )
+    return {"status": "ok", "database": "ok"}
 
 
 def create_app() -> FastAPI:
