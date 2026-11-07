@@ -1,0 +1,1 @@
+"""Sales and stock reports."""
