@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sales &amp; Inventory{% endblock %} · Sales &amp; Inventory</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body
+  data-max-discount="{{ limits.maxDiscountPercent }}"
+  data-min-discount="{{ limits.minDiscountPercent }}"
+  data-min-quantity="{{ limits.minQuantity }}"
+  data-max-quantity="{{ limits.maxQuantity }}"
+  {% if user %}data-user-role="{{ user.role.value }}" data-user-id="{{ user.id }}"{% endif %}>
+
+  {% if user %}{% include "partials/nav.html" %}{% endif %}
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+
+  {% if user %}<script type="module" src="/static/js/nav.js"></script>{% endif %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>

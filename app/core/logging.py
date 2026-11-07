@@ -42,16 +42,15 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         started = time.perf_counter()
         try:
             response = await call_next(request)
+            elapsed_ms = (time.perf_counter() - started) * 1000
+            response.headers["X-Request-ID"] = request_id
+            logger.info(
+                "%s %s -> %s (%.1f ms)",
+                request.method,
+                request.url.path,
+                response.status_code,
+                elapsed_ms,
+            )
+            return response
         finally:
             request_id_var.reset(token)
-        elapsed_ms = (time.perf_counter() - started) * 1000
-        response.headers["X-Request-ID"] = request_id
-        logger.info(
-            "%s %s -> %s (%.1f ms) [%s]",
-            request.method,
-            request.url.path,
-            response.status_code,
-            elapsed_ms,
-            request_id,
-        )
-        return response

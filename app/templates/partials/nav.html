@@ -1,0 +1,12 @@
+{# Links are hidden by role for convenience only; every route also checks permissions on the server. #}
+<header class="topbar">
+  <a class="brand" href="/">Sales &amp; Inventory</a>
+  <nav class="nav-links">
+    <a href="/" {% if request.url.path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
+  </nav>
+  <div class="user-box">
+    <span class="user-name">{{ user.name }}</span>
+    <span class="badge badge-{{ user.role.value | lower }}">{{ "Admin" if user.is_admin else "Sales User" }}</span>
+    <button type="button" id="logout-button" class="btn btn-ghost btn-sm">Log out</button>
+  </div>
+</header>
