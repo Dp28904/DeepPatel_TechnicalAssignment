@@ -20,6 +20,8 @@ MAX_PRICE = Decimal("9999999.99")  # fits DECIMAL(12,2) even after multiplying b
 MONEY_PRECISION = 12
 MONEY_SCALE = 2
 PRODUCT_CODE_PATTERN = r"^[A-Za-z0-9-]{1,30}$"
+MAX_STOCK_QUANTITY = 1_000_000_000  # well inside MySQL INT
+MIN_ADJUSTMENT_REASON_LENGTH = 3
 
 # --- Field lengths (shared by models and schemas) -------------------------
 NAME_MAX_LENGTH = 150

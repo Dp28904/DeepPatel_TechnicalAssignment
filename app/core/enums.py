@@ -18,6 +18,14 @@ class OrderStatus(StrEnum):
     CANCELLED = "CANCELLED"
 
 
+class StatusFilter(StrEnum):
+    """List filter for active/inactive master data (query parameter values are lowercase)."""
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    ALL = "all"
+
+
 class MovementType(StrEnum):
     OPENING = "OPENING"  # opening stock when a product is created or imported
     ADJUSTMENT_IN = "ADJUSTMENT_IN"  # manual increase by an admin

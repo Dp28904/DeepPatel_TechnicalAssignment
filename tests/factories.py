@@ -12,6 +12,17 @@ from app.models import Customer, Product, SalesOrder, SalesOrderItem, StockMovem
 _seq = count(1)
 
 
+def see_latest(db: Session) -> None:
+    """Make the test's session see rows committed by API requests.
+
+    MySQL's REPEATABLE READ gives each transaction a fixed snapshot, so a session
+    with an open transaction keeps seeing old values. Committing ends that
+    transaction and expire_all() forces every object to be re-read.
+    """
+    db.commit()
+    db.expire_all()
+
+
 def make_user(db: Session, *, role: Role = Role.SALES, **overrides) -> User:
     n = next(_seq)
     user = User(

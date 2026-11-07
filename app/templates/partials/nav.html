@@ -1,8 +1,11 @@
 {# Links are hidden by role for convenience only; every route also checks permissions on the server. #}
+{% set path = request.url.path %}
 <header class="topbar">
   <a class="brand" href="/">Sales &amp; Inventory</a>
   <nav class="nav-links">
-    <a href="/" {% if request.url.path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
+    <a href="/" {% if path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
+    <a href="/customers" {% if path.startswith("/customers") %}aria-current="page"{% endif %}>Customers</a>
+    <a href="/products" {% if path.startswith("/products") %}aria-current="page"{% endif %}>Products</a>
   </nav>
   <div class="user-box">
     <span class="user-name">{{ user.name }}</span>
