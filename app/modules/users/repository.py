@@ -18,3 +18,7 @@ def add(db: Session, user: User) -> User:
     db.add(user)
     db.flush()
     return user
+
+
+def list_all(db: Session) -> list[User]:
+    return list(db.scalars(select(User).order_by(User.role, User.name, User.id)))

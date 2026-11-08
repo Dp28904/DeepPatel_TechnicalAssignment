@@ -31,14 +31,18 @@ export function showFieldError(container, field, message) {
 }
 
 /** Show a banner message at the top of a form. */
-export function showFormError(container, message) {
+export function showFormError(container, message, items = []) {
   const banner = container.querySelector(".alert-error") ?? document.getElementById("form-error");
-  if (banner) {
-    banner.textContent = message;
-    banner.hidden = false;
-  } else {
-    toast(message, "error");
+  if (!banner) {
+    toast([message, ...items].join(" "), "error");
+    return;
   }
+  // Only real nodes: replaceChildren() would print a null as the text "null".
+  const parts = [el("strong", { class: "alert-title" }, message)];
+  if (items.length) parts.push(el("ul", { class: "alert-list" }, ...items.map((item) => el("li", {}, item))));
+  banner.replaceChildren(...parts);
+  banner.hidden = false;
+  banner.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
 /**
@@ -46,15 +50,27 @@ export function showFormError(container, message) {
  * goes into the banner.
  */
 export function showApiError(container, error) {
-  const leftovers = [];
-  if (Array.isArray(error.details)) {
-    for (const detail of error.details) {
-      const placed = detail?.field && showFieldError(container, detail.field, detail.message);
-      if (!placed && detail?.message) leftovers.push(detail.message);
-    }
+  const details = Array.isArray(error.details) ? error.details.filter((d) => d?.message) : [];
+  if (!details.length) {
+    showFormError(container, error.message);
+    return;
   }
-  const message = leftovers.length ? `${error.message} ${leftovers.join(" ")}` : error.message;
-  showFormError(container, message);
+  const leftovers = [];
+  let placed = 0;
+  for (const detail of details) {
+    if (detail.field && showFieldError(container, detail.field, detail.message)) placed += 1;
+    else leftovers.push(detail.message);
+  }
+  if (placed && !leftovers.length) {
+    // Every problem is shown next to its field; the banner just points at them.
+    showFormError(container, placed === 1 ? "Please fix the highlighted field." : `Please fix the ${placed} highlighted fields.`);
+  } else if (placed) {
+    showFormError(container, "Please fix the highlighted fields and the following:", leftovers);
+  } else if (leftovers.length === 1) {
+    showFormError(container, leftovers[0]);
+  } else {
+    showFormError(container, "Please fix the following:", leftovers);
+  }
 }
 
 /** Native confirmation dialog; returns true when the user agrees. */

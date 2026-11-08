@@ -29,7 +29,13 @@ def import_products(
 ):
     if file.filename and not file.filename.lower().endswith(".csv"):
         raise ValidationFailed(
-            "Please upload a .csv file.", details=[{"field": "file", "message": "Not a .csv file."}]
+            "Please upload a .csv file.",
+            details=[
+                {
+                    "field": "file",
+                    "message": "This is not a CSV file. Save it as CSV and upload it again.",
+                }
+            ],
         )
     # Read one byte more than the limit, so an oversized file is detected without
     # loading all of it into memory.

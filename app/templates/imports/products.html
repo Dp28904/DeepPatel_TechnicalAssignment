@@ -23,20 +23,16 @@
 
   <section class="card form-card">
     <h2>File format</h2>
-    <pre class="code-block">product_code,product_name,category,price,stock_quantity,status
-PRD-001,Keyboard,Accessories,1500,20,Active
-PRD-002,Mouse,Accessories,500,50,Active</pre>
+    <p>A <code>.csv</code> file whose first row names these six columns (any order):
+      <code>product_code</code>, <code>product_name</code>, <code>category</code>,
+      <code>price</code>, <code>stock_quantity</code>, <code>status</code>.</p>
     <ul class="compact-list">
       <li>Product codes must be new and unique (letters, digits, dashes).</li>
       <li>Price ≥ 0 with at most 2 decimals; stock is a whole number ≥ 0.</li>
       <li>Status is <code>Active</code> or <code>Inactive</code>.</li>
       <li>Opening stock is recorded in the stock movement history.</li>
+      <li>Up to 1 MB and 5,000 products per file.</li>
     </ul>
-    <p>
-      Samples:
-      <a href="/imports/products/samples/valid">valid file</a> ·
-      <a href="/imports/products/samples/invalid">invalid file</a>
-    </p>
   </section>
 </div>
 

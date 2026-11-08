@@ -5,9 +5,8 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import SESSION_USER_KEY, get_page_user
+from app.core.dependencies import current_user_or_none, get_page_user
 from app.core.templating import templates
-from app.modules.users import service as user_service
 from app.modules.users.models import User
 
 router = APIRouter(include_in_schema=False)
@@ -22,8 +21,7 @@ def safe_next_path(next_path: str | None) -> str:
 
 @router.get("/login")
 def login_page(request: Request, next: str | None = None, db: Session = Depends(get_db)):
-    user_id = request.session.get(SESSION_USER_KEY)
-    if isinstance(user_id, int) and user_service.get_active_user(db, user_id):
+    if current_user_or_none(request, db):
         return RedirectResponse(safe_next_path(next), status_code=303)
     return templates.TemplateResponse(
         request, "auth/login.html", {"next_path": safe_next_path(next), "user": None}

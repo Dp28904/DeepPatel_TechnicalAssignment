@@ -17,6 +17,7 @@ from app.core.dependencies import LoginRequired
 from app.core.exceptions import AppError
 from app.core.logging import request_id_var
 from app.core.templating import templates
+from app.core.validation_messages import friendly_errors, summary
 
 logger = logging.getLogger("app.errors")
 
@@ -53,17 +54,6 @@ def _respond(request: Request, status: int, code: str, message: str, details=Non
     )
 
 
-def _format_validation_errors(exc: RequestValidationError) -> list[dict]:
-    """Turn Pydantic's error list into ``[{field, message}]`` that the UI can show."""
-    details = []
-    for err in exc.errors():
-        # loc looks like ("body", "items", 0, "quantity"); drop the "body"/"query" prefix.
-        loc = [str(part) for part in err.get("loc", ()) if part not in ("body", "query", "path")]
-        message = err.get("msg", "Invalid value").removeprefix("Value error, ")
-        details.append({"field": ".".join(loc) or None, "message": message})
-    return details
-
-
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(LoginRequired)
     async def handle_login_required(request: Request, exc: LoginRequired):
@@ -75,20 +65,18 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(request: Request, exc: RequestValidationError):
-        return _respond(
-            request,
-            422,
-            "validation_error",
-            "Some fields are invalid.",
-            _format_validation_errors(exc),
-        )
+        # Plain-language messages for every field (see app/core/validation_messages.py).
+        details = friendly_errors(exc.errors())
+        return _respond(request, 422, "validation_error", summary(details), details)
 
     @app.exception_handler(StarletteHTTPException)
     async def handle_http_error(request: Request, exc: StarletteHTTPException):
         code = _HTTP_CODES.get(exc.status_code, "http_error")
         message = exc.detail if isinstance(exc.detail, str) else "Request failed."
         if exc.status_code == 404 and message == "Not Found":
-            message = "The requested resource was not found."
+            message = "This page or record does not exist. Check the address and try again."
+        elif exc.status_code == 405:
+            message = "This action is not available here."
         return _respond(
             request, exc.status_code, code, message, headers=getattr(exc, "headers", None)
         )

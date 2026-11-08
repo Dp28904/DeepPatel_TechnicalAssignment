@@ -139,3 +139,9 @@ CREATE INDEX ix_stock_movements_product_id_created_at ON stock_movements (produc
 
 INSERT INTO alembic_version (version_num) VALUES ('0001');
 
+-- Running upgrade 0001 -> 0002
+
+ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT '1';
+
+UPDATE alembic_version SET version_num='0002' WHERE alembic_version.version_num = '0001';
+

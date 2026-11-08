@@ -20,7 +20,7 @@ HUGE = 10**20
 
 # --- Fixture data ---------------------------------------------------------------
 @pytest.fixture
-def ids(db_session, sales_client):
+def ids(db_session, sales_client, sales_user):
     customer = make_customer(db_session)
     product = make_product(db_session, price=Decimal("100.00"), stock_quantity=10)
     db_session.commit()
@@ -28,7 +28,12 @@ def ids(db_session, sales_client):
         "/api/orders",
         json={"customer_id": customer.id, "items": [{"product_id": product.id, "quantity": 1}]},
     ).json()
-    return {"customer": customer.id, "product": product.id, "order": order["id"]}
+    return {
+        "customer": customer.id,
+        "product": product.id,
+        "order": order["id"],
+        "sales_user": sales_user.id,
+    }
 
 
 def endpoints(ids):
@@ -40,6 +45,18 @@ def endpoints(ids):
     adjust = {"adjustment_type": "INCREASE", "quantity": 1, "reason": "test"}
     return [
         ("GET", "/api/auth/me", None, False),
+        ("GET", "/api/dashboard", None, False),
+        ("POST", "/api/auth/password", {"current_password": "x", "new_password": "y" * 8}, False),
+        ("GET", "/api/users", None, True),
+        (
+            "POST",
+            "/api/users",
+            {"name": "X", "email": "n@example.com", "role": "SALES", "password": "y" * 8},
+            True,
+        ),
+        ("GET", f"/api/users/{ids['sales_user']}", None, True),
+        ("PUT", f"/api/users/{ids['sales_user']}", {"name": "X", "email": "x@example.com"}, True),
+        ("POST", f"/api/users/{ids['sales_user']}/password", {"new_password": "y" * 8}, True),
         ("GET", "/api/customers", None, False),
         ("POST", "/api/customers", customer, True),
         ("GET", f"/api/customers/{c}", None, False),
@@ -133,9 +150,7 @@ def test_malformed_bodies_get_422_on_every_json_endpoint(admin_client, ids, labe
 
 def test_validation_errors_name_the_field(admin_client):
     error = assert_error(admin_client.post("/api/customers", json={"name": ""}), 422)
-    assert error["details"] == [
-        {"field": "name", "message": "String should have at least 1 character"}
-    ]
+    assert error["details"] == [{"field": "name", "message": "Name is required."}]
 
 
 # --- Ids, paging and dates ------------------------------------------------------------------

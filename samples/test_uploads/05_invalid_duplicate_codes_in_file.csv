@@ -1,0 +1,5 @@
+product_code,product_name,category,price,stock_quantity,status
+TST-801,Webcam 1080p,Accessories,2499,10,Active
+TST-802,Ring Light,Accessories,1599,7,Active
+TST-801,Webcam 1080p (again),Accessories,2499,10,Active
+tst-802,Ring Light lowercase code,Accessories,1599,7,Active

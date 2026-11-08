@@ -61,7 +61,8 @@ def import_products(db: Session, user: User, content: bytes) -> ImportResult:
         shown = errors[:MAX_ERRORS_REPORTED]
         more = f" Showing the first {len(shown)}." if len(errors) > len(shown) else ""
         raise ValidationFailed(
-            f"Import rejected: {len(errors)} problem(s) found. No products were imported.{more}",
+            f"Nothing was imported: we found {len(errors)} problem(s) in the file. "
+            f"Fix the rows listed below and upload the file again.{more}",
             code="csv_invalid",
             details=[error.as_dict() for error in shown],
         )

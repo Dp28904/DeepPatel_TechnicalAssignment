@@ -20,6 +20,7 @@ from app.modules.users import service as user_service
 from app.modules.users.models import User
 
 SESSION_USER_KEY = "user_id"
+SESSION_VERSION_KEY = "session_version"
 
 
 class LoginRequired(Exception):
@@ -38,10 +39,24 @@ def _load_session_user(request: Request, db: Session) -> User | None:
     if not isinstance(user_id, int):
         return None
     user = user_service.get_active_user(db, user_id)
-    if user is None:
-        # The account was deactivated or deleted after login: end the session.
+    if user is None or request.session.get(SESSION_VERSION_KEY) != user.session_version:
+        # The account was deactivated, or its password changed after this session
+        # was created: end the session.
         request.session.clear()
+        return None
     return user
+
+
+def start_session(request: Request, user: User) -> None:
+    """Store who is logged in, and the password 'version' this session belongs to."""
+    request.session.clear()  # drop anything from a previous session
+    request.session[SESSION_USER_KEY] = user.id
+    request.session[SESSION_VERSION_KEY] = user.session_version
+
+
+def current_user_or_none(request: Request, db: Session) -> User | None:
+    """The logged-in user, or None (used where being logged out is not an error)."""
+    return _load_session_user(request, db)
 
 
 # --- API ------------------------------------------------------------------

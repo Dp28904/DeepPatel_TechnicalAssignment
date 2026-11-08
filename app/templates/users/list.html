@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Users</h1>
+    <p class="muted page-subtitle">
+      Change a Sales User's name, login email or password. Your own password is changed on
+      <a href="/account">My account</a>.
+    </p>
+  </div>
+  <a class="btn btn-primary" href="/users/new">+ New user</a>
+</div>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<div class="card table-card">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Login email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+    <tbody id="rows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/users_list.js"></script>{% endblock %}

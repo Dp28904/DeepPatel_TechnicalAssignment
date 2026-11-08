@@ -4,8 +4,8 @@ from datetime import date, datetime, time
 
 from sqlalchemy.orm import Session
 
+from app.core.dates import validate_date_range
 from app.core.enums import MovementType
-from app.core.exceptions import ValidationFailed
 from app.core.money import ZERO, round_money
 from app.core.pagination import PageParams, paginate
 from app.modules.inventory.schemas import StockMovementOut
@@ -24,9 +24,7 @@ from app.modules.reports.schemas import (
 
 
 def _check_range(date_from: date | None, date_to: date | None) -> DateRange:
-    if date_from and date_to and date_from > date_to:
-        message = "'From' date must be on or before 'To' date."
-        raise ValidationFailed(message, details=[{"field": "from", "message": message}])
+    validate_date_range(date_from, date_to)
     return DateRange(date_from=date_from, date_to=date_to)
 
 

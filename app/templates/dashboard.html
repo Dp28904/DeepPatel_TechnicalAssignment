@@ -2,13 +2,129 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ user.name }}</h1>
-<p class="muted">
-  You are logged in as {{ "an Admin" if user.is_admin else "a Sales User" }}.
-  {% if user.is_admin %}
-    You can manage customers, products, stock and all orders, and view reports.
-  {% else %}
-    You can view active customers and products, and create and manage your own orders.
-  {% endif %}
-</p>
+<div class="page-header">
+  <div>
+    <h1>{{ "Business overview" if user.is_admin else "My sales" }}</h1>
+    <p class="muted dashboard-scope">
+      {% if user.is_admin %}All users' orders.{% else %}Only the orders you created.{% endif %}
+      Sales figures count confirmed orders only.
+    </p>
+  </div>
+  <a class="btn btn-primary" href="/orders/new">+ New order</a>
+</div>
+
+{# One filter row above everything it scopes. #}
+<form id="range-filter" class="toolbar card dashboard-filter" aria-label="Date range">
+  <div class="field">
+    <label for="preset">Period (order date)</label>
+    <select id="preset" name="preset">
+      <option value="30d">Last 30 days</option>
+      <option value="90d">Last 90 days</option>
+      <option value="12m" selected>Last 12 months</option>
+      <option value="ytd">This year</option>
+      <option value="all">All time</option>
+      <option value="custom">Custom range…</option>
+    </select>
+  </div>
+  <div class="field custom-range" hidden><label for="from">From</label><input id="from" name="from" type="date"></div>
+  <div class="field custom-range" hidden><label for="to">To</label><input id="to" name="to" type="date"></div>
+  <p id="range-label" class="muted range-label"></p>
+</form>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<div id="dashboard" class="dashboard">
+  <section class="kpi-row" aria-label="Headline numbers">
+    <div class="kpi-tile kpi-hero">
+      <span class="kpi-label">Net sales (after discount)</span>
+      <span class="kpi-value" id="kpi-net-sales">–</span>
+      <span class="kpi-sub" id="kpi-net-sub"></span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-label">Confirmed orders</span>
+      <span class="kpi-value" id="kpi-confirmed">–</span>
+      <span class="kpi-sub" id="kpi-aov"></span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-label">Draft orders</span>
+      <span class="kpi-value" id="kpi-drafts">–</span>
+      <span class="kpi-sub" id="kpi-draft-value"></span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-label">Low-stock products</span>
+      <span class="kpi-value" id="kpi-low-stock">–</span>
+      <span class="kpi-sub" id="kpi-low-sub"></span>
+    </div>
+  </section>
+
+  <div class="chart-grid">
+    <section class="card chart-card chart-wide" data-chart="trend">
+      <header class="chart-header">
+        <div><h2>Monthly net sales</h2><p class="muted">Confirmed orders, after discount</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+
+    <section class="card chart-card" data-chart="status">
+      <header class="chart-header">
+        <div><h2>Orders by status</h2><p class="muted">Share of orders in the period</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+
+    <section class="card chart-card" data-chart="categories">
+      <header class="chart-header">
+        <div><h2>Sales by category</h2><p class="muted">Gross item value, before discount</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+
+    <section class="card chart-card" data-chart="customers">
+      <header class="chart-header">
+        <div><h2>Top customers</h2><p class="muted">By net sales</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+
+    <section class="card chart-card" data-chart="products">
+      <header class="chart-header">
+        <div><h2>Top products</h2><p class="muted">By quantity sold</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+
+    <section class="card chart-card{% if not user.is_admin %} chart-wide{% endif %}" data-chart="low-stock">
+      <header class="chart-header">
+        <div><h2>Running low</h2><p class="muted" id="low-stock-caption">Active products below the stock threshold (current stock)</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+
+    {% if user.is_admin %}
+    <section class="card chart-card" data-chart="users">
+      <header class="chart-header">
+        <div><h2>Sales by team member</h2><p class="muted">Net sales of the orders each user created</p></div>
+        <button type="button" class="btn btn-ghost btn-sm view-toggle" aria-pressed="false">Table</button>
+      </header>
+      <div class="chart-body"></div><div class="table-body" hidden></div>
+    </section>
+    {% endif %}
+
+    <section class="card chart-card chart-wide" data-chart="recent">
+      <header class="chart-header">
+        <div><h2>Recent orders</h2><p class="muted">Latest order dates in the period</p></div>
+        <a class="btn btn-ghost btn-sm" href="/orders">All orders</a>
+      </header>
+      <div class="chart-body table-card"></div>
+    </section>
+  </div>
+</div>
 {% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/dashboard.js"></script>{% endblock %}

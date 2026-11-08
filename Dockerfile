@@ -18,7 +18,6 @@ COPY alembic.ini ./
 COPY migrations ./migrations
 COPY app ./app
 COPY db ./db
-COPY samples ./samples
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Run as an unprivileged user, never as root.

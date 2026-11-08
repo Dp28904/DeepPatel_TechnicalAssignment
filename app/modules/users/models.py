@@ -17,6 +17,9 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[Role] = mapped_column(Enum(Role, name="user_role"))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Increased whenever the password changes. Each session remembers the version it
+    # was created with, so a password change logs out every other session.
+    session_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
     @property

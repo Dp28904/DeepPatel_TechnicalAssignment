@@ -74,6 +74,10 @@ committed.
 | Sales User | `sales1@example.com` | value of `SEED_SALES1_PASSWORD` |
 | Sales User | `sales2@example.com` | value of `SEED_SALES2_PASSWORD` |
 
+An Admin can change a Sales User's name, login email and password on the **Users** page, and their own
+name, email and password (current password required) on **My account**. Sales Users cannot change
+passwords; they ask an Admin. A password change signs that user out of every other session.
+
 To create more accounts (the password is prompted for and never stored in shell history):
 
 ```bash

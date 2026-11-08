@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "partials/back_link.html" import back_link %}
+{% block title %}Edit user{% endblock %}
+
+{% block content %}
+{{ back_link("/users", "Back to users") }}
+<div class="page-header">
+  <h1 id="page-title">User</h1>
+  <span id="role-badge"></span>
+</div>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<div class="two-column" id="user-panels" data-user-id="{{ target_id }}" data-self-id="{{ user.id }}" hidden>
+  <section class="card form-card">
+    <h2>Name and login</h2>
+    <p class="muted" id="profile-note" hidden></p>
+    <div class="alert alert-error" role="alert" hidden></div>
+    <form id="profile-form" novalidate>
+      <div class="field">
+        <label for="name">Name *</label>
+        <input id="name" name="name" required maxlength="150" autocomplete="off">
+        <p class="field-error" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="email">Login email (username) *</label>
+        <input id="email" name="email" type="email" required maxlength="255" autocomplete="off">
+        <p class="field-error" data-error-for="email"></p>
+      </div>
+      <button type="submit" class="btn btn-primary" id="profile-save">Save changes</button>
+    </form>
+  </section>
+
+  <section class="card form-card">
+    <h2>Password</h2>
+    <p class="muted" id="password-note" hidden></p>
+    <div class="alert alert-error" role="alert" hidden></div>
+    <form id="password-form" novalidate hidden>
+      <p class="hint">The user's current sessions are signed out. Tell them the new password securely.</p>
+      <div class="field">
+        <label for="new_password">New password *</label>
+        <input id="new_password" name="new_password" type="password" minlength="8" maxlength="128" required autocomplete="new-password">
+        <p class="field-error" data-error-for="new_password"></p>
+      </div>
+      <div class="field">
+        <label for="confirm_password">Repeat new password *</label>
+        <input id="confirm_password" name="confirm_password" type="password" maxlength="128" required autocomplete="new-password">
+        <p class="field-error" data-error-for="confirm_password"></p>
+      </div>
+      <button type="submit" class="btn btn-primary" id="password-save">Set new password</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/user_edit.js"></script>{% endblock %}

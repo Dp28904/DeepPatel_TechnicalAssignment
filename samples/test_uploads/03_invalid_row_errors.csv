@@ -1,0 +1,14 @@
+product_code,product_name,category,price,stock_quantity,status
+TST-601,Valid Row Monitor,Displays,9999,5,Active
+,Missing Code Item,Displays,100,1,Active
+TST 602,Code With Space,Displays,100,1,Active
+TST-603,,Displays,100,1,Active
+TST-604,Missing Category,,100,1,Active
+TST-605,Negative Price,Displays,-50,1,Active
+TST-606,Text Price,Displays,abc,1,Active
+TST-607,Three Decimals,Displays,10.555,1,Active
+TST-608,Scientific Price,Displays,1e3,1,Active
+TST-609,Negative Stock,Displays,100,-3,Active
+TST-610,Fraction Stock,Displays,100,2.5,Active
+TST-611,Bad Status,Displays,100,1,Available
+TST-612,Too Many Values,Displays,100,1,Active,extra

@@ -1,6 +1,6 @@
 # Testing
 
-**458 automated tests** cover the application and the debugging exercise.
+**516 automated tests** cover the application and the debugging exercise.
 
 | Check | Result |
 |---|---|
@@ -48,8 +48,11 @@ Safety: the suite refuses to run unless the database name ends in `_test`. The s
 | `tests/integration/test_order_concurrency.py` | 5 | Simultaneous requests: limited stock, triple confirm, confirm vs cancel, deadlock-free locking, adjustment vs confirm |
 | `tests/integration/test_products_api.py` | 38 | Product CRUD, unique codes, visibility, safe delete, stock adjustment, ledger consistency, concurrent decreases |
 | `tests/integration/test_customers_api.py` | 28 | Customer CRUD, search and filter, role visibility, safe delete |
+| `tests/integration/test_dashboard.py` | 9 | Dashboard: role scoping (all vs own orders), headline numbers, zero-filled monthly trend, category/product/customer/team rankings, low stock, date range |
 | `tests/integration/test_reports.py` | 25 | All 4 reports and all 5 queries in `sql/queries.sql`, checked against a dataset with hand-calculated results |
 | `tests/integration/test_csv_import.py` | 15 | All-or-nothing import, row errors, opening stock, the sample files, limits, permissions |
+| `tests/integration/test_friendly_errors.py` | 18 | Every validation error is a plain sentence naming the field ("Name is required.", "Item 2 quantity must be 1 or more."), for bodies, query parameters, dates and invalid JSON |
+| `tests/integration/test_user_management.py` | 29 | Admin adds Sales Users and Admins; edits Sales Users (name, login email, password); Admin edits self and changes own password with the current one; no editing other Admins; Sales Users cannot change passwords; a password change signs out other sessions; passwords are never trimmed |
 | `tests/integration/test_auth.py` | 28 | Login and logout, sessions, inactive users, CSRF, role checks, page redirects |
 | `tests/integration/test_schema.py` | 26 | Database constraints: CHECK, UNIQUE, FOREIGN KEY RESTRICT/CASCADE, DECIMAL storage |
 | `tests/integration/test_users_cli_seed.py` | 7 | The account CLI and the seed script (idempotent, `--reset`) |
@@ -90,11 +93,15 @@ Safety: the suite refuses to run unless the database name ends in `_test`. The s
 | `POST /api/orders/{id}/confirm` and `/cancel` | ✓ | ✓ | – | ✓ | ✓ not owned | ✓ status / stock / lock | – |
 | `POST /api/imports/products` | ✓ | ✓ | ✓ | ✓ | – | ✓ race | ✓ (413 too large) |
 | `GET /api/reports/*` (4 reports) | ✓ | ✓ | ✓ | – | – | – | ✓ |
+| `GET /api/dashboard` | ✓ | ✓ | – (scoped by role) | – | – | – | ✓ |
+| `POST /api/auth/password` (own password, Admins) | ✓ | ✓ | ✓ Sales User | ✓ | – | – | ✓ wrong current / too short |
+| `GET/PUT /api/users/{id}`, `GET /api/users` | ✓ | ✓ | ✓ (other Admin) | ✓ | ✓ | ✓ email taken | ✓ |
+| `POST /api/users/{id}/password` | ✓ | ✓ | ✓ (self / Admin) | ✓ | ✓ | – | ✓ |
 | `GET/HEAD /api/health` | ✓ | – | – | – | – | – | – (503 when the database is down) |
 
 ## Exploratory testing
 
-A probe script sent **351 hostile or edge-case requests** to all 27 API operations. It ran first in-process, then over real HTTP against the Docker image. The inputs covered:
+A probe script sent **351 hostile or edge-case requests** to all 27 API operations (the dashboard endpoint, added later, is covered by the contract tests). It ran first in-process, then over real HTTP against the Docker image. The inputs covered:
 
 - invalid JSON, arrays, strings, empty bodies, `text/plain` and form-encoded bodies
 - ids of `0`, `-1`, `10^20`, `abc` and `1.5`
