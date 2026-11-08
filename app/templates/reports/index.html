@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Reports</h1>
+  <span class="muted">Sales figures include Confirmed orders only.</span>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button type="button" role="tab" data-tab="customer-sales">Customer sales</button>
+  <button type="button" role="tab" data-tab="product-sales">Product sales</button>
+  <button type="button" role="tab" data-tab="low-stock">Low stock</button>
+  <button type="button" role="tab" data-tab="stock-movements">Stock movements</button>
+</nav>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+{# --- Customer sales ---------------------------------------------------- #}
+<section class="tab-panel" data-panel="customer-sales" hidden>
+  <form class="toolbar card report-filters" data-report="customer-sales">
+    <div class="field"><label>Order date from<input name="from" type="date"></label></div>
+    <div class="field"><label>to<input name="to" type="date"></label></div>
+    <button type="submit" class="btn btn-primary">Run report</button>
+  </form>
+  <p class="hint">Every customer is listed, including those with no confirmed orders in the range (shown as 0). Totals are after order discounts.</p>
+  <div class="card table-card">
+    <table class="data-table">
+      <thead><tr><th>Customer</th><th>City</th><th>Status</th><th class="num">Confirmed orders</th><th class="num">Total sales (after discount)</th></tr></thead>
+      <tbody data-rows></tbody>
+      <tfoot data-totals></tfoot>
+    </table>
+  </div>
+</section>
+
+{# --- Product sales ----------------------------------------------------- #}
+<section class="tab-panel" data-panel="product-sales" hidden>
+  <form class="toolbar card report-filters" data-report="product-sales">
+    <div class="field"><label>Order date from<input name="from" type="date"></label></div>
+    <div class="field"><label>to<input name="to" type="date"></label></div>
+    <button type="submit" class="btn btn-primary">Run report</button>
+  </form>
+  <p class="hint">Gross item value is quantity × rate, before the order-level discount.</p>
+  <div class="card table-card">
+    <table class="data-table">
+      <thead><tr><th>Code</th><th>Product</th><th>Category</th><th class="num">Qty sold</th><th class="num">Orders</th><th class="num">Gross item value</th></tr></thead>
+      <tbody data-rows></tbody>
+      <tfoot data-totals></tfoot>
+    </table>
+  </div>
+</section>
+
+{# --- Low stock ---------------------------------------------------------- #}
+<section class="tab-panel" data-panel="low-stock" hidden>
+  <form class="toolbar card report-filters" data-report="low-stock" novalidate>
+    <div class="field">
+      <label for="threshold">Show products with stock below *</label>
+      <input id="threshold" name="threshold" type="number" min="0" step="1" value="10" required>
+      <p class="field-error" data-error-for="threshold"></p>
+    </div>
+    <div class="field checkbox-field"><label><input name="include_inactive" type="checkbox"> Include inactive</label></div>
+    <button type="submit" class="btn btn-primary">Run report</button>
+  </form>
+  <div class="card table-card">
+    <table class="data-table">
+      <thead><tr><th>Code</th><th>Product</th><th>Category</th><th class="num">Price</th><th class="num">In stock</th><th class="num">Below threshold by</th><th>Status</th></tr></thead>
+      <tbody data-rows></tbody>
+    </table>
+  </div>
+</section>
+
+{# --- Stock movements ---------------------------------------------------- #}
+<section class="tab-panel" data-panel="stock-movements" hidden>
+  <form class="toolbar card report-filters" data-report="stock-movements">
+    <div class="field grow">
+      <label>Product<select name="product_id"><option value="">All products</option></select></label>
+    </div>
+    <div class="field">
+      <label>Type
+        <select name="movement_type">
+          <option value="">All types</option>
+          <option value="OPENING">Opening stock</option>
+          <option value="ADJUSTMENT_IN">Adjustment in</option>
+          <option value="ADJUSTMENT_OUT">Adjustment out</option>
+          <option value="ORDER_CONFIRM">Order confirmed</option>
+          <option value="ORDER_CANCEL">Order cancelled</option>
+        </select>
+      </label>
+    </div>
+    <div class="field"><label>From<input name="from" type="date"></label></div>
+    <div class="field"><label>To<input name="to" type="date"></label></div>
+    <button type="submit" class="btn btn-primary">Run report</button>
+  </form>
+  <div class="card table-card">
+    <table class="data-table">
+      <thead><tr><th>When (local time)</th><th>Product</th><th>Type</th><th class="num">Change</th><th>Order</th><th>Reason</th><th>By</th></tr></thead>
+      <tbody data-rows></tbody>
+    </table>
+    <div class="pager" data-pager></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/reports.js"></script>{% endblock %}
