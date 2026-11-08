@@ -25,6 +25,29 @@ def get_for_update(db: Session, product_id: int) -> Product | None:
     )
 
 
+def get_many(db: Session, product_ids: list[int]) -> dict[int, Product]:
+    rows = db.scalars(
+        select(Product).where(Product.id.in_(product_ids)).execution_options(populate_existing=True)
+    )
+    return {product.id: product for product in rows}
+
+
+def lock_many(db: Session, product_ids: list[int]) -> dict[int, Product]:
+    """Lock several product rows, always in ascending id order.
+
+    A fixed lock order means two transactions never hold locks the other is
+    waiting for, which is how deadlocks happen.
+    """
+    rows = db.scalars(
+        select(Product)
+        .where(Product.id.in_(product_ids))
+        .order_by(Product.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    return {product.id: product for product in rows}
+
+
 def get_by_code(db: Session, code: str) -> Product | None:
     return db.scalar(select(Product).where(Product.code == code))
 

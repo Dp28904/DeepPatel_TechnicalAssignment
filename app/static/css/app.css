@@ -117,3 +117,27 @@ input[readonly], input:disabled, select:disabled { background: var(--bg); color:
 
 .badge-active { background: var(--success-bg); color: var(--success); }
 .badge-inactive { background: #f3f4f6; color: var(--muted); }
+
+/* --- Orders --- */
+.badge-draft { background: #eef2ff; color: #3730a3; }
+.badge-confirmed { background: var(--success-bg); color: var(--success); }
+.badge-cancelled { background: var(--danger-bg); color: var(--danger); }
+.text-warning { color: var(--warning); font-weight: 700; }
+.items-card { margin: 12px 0; }
+.items-table td { vertical-align: top; }
+.items-table .col-product { min-width: 260px; white-space: normal; }
+.items-table .col-qty { width: 140px; }
+.items-table .qty-input { text-align: right; }
+.items-footer { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+.totals-card { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start; margin-top: 12px; }
+.totals-card .form-actions, .totals-card .hint { flex-basis: 100%; }
+.discount-field { max-width: 220px; }
+.totals { display: grid; grid-template-columns: auto auto; gap: 6px 24px; margin: 0 0 0 auto; min-width: 260px; font-variant-numeric: tabular-nums; }
+.totals dt { color: var(--muted); }
+.totals dd { margin: 0; text-align: right; }
+.totals .grand { font-size: 1.15rem; font-weight: 700; color: var(--text); border-top: 1px solid var(--border); padding-top: 6px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 0; }
+.meta-grid dt { color: var(--muted); font-size: .85rem; }
+.meta-grid dd { margin: 0; font-weight: 600; }
+#stock-problems ul { margin: 6px 0 0; padding-left: 20px; }
+section.card + section.card, section.card + .alert, .alert + section.card { margin-top: 12px; }

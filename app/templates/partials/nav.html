@@ -6,6 +6,7 @@
     <a href="/" {% if path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
     <a href="/customers" {% if path.startswith("/customers") %}aria-current="page"{% endif %}>Customers</a>
     <a href="/products" {% if path.startswith("/products") %}aria-current="page"{% endif %}>Products</a>
+    <a href="/orders" {% if path.startswith("/orders") %}aria-current="page"{% endif %}>{{ "Orders" if user.is_admin else "My orders" }}</a>
   </nav>
   <div class="user-box">
     <span class="user-name">{{ user.name }}</span>

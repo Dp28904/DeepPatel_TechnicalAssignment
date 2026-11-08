@@ -5,6 +5,7 @@ once at the end of a unit of work, and any exception rolls everything back.
 """
 
 from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 
 from sqlalchemy import MetaData, create_engine, text
@@ -49,6 +50,25 @@ def get_db() -> Iterator[Session]:
         yield session
     finally:
         session.close()
+
+
+@contextmanager
+def transaction(db: Session) -> Iterator[None]:
+    """Run one unit of work atomically: commit if the block succeeds, roll back on any error.
+
+    It first ends any earlier read-only transaction in this request (for example the
+    one that loaded the logged-in user). With MySQL's REPEATABLE READ, a transaction's
+    snapshot is taken at its first plain read. Starting fresh and locking rows first
+    means that snapshot is taken *after* our locks are held, so data protected by
+    those locks is current.
+    """
+    db.commit()
+    try:
+        yield
+        db.commit()
+    except BaseException:
+        db.rollback()  # undo everything and release all row locks
+        raise
 
 
 def ping_database() -> bool:

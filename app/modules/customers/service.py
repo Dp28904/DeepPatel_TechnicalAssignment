@@ -10,7 +10,7 @@ from app.core.pagination import PageParams, paginate
 from app.modules.customers import repository
 from app.modules.customers.models import Customer
 from app.modules.customers.schemas import CustomerIn, CustomerOut
-from app.modules.orders import service as order_service
+from app.modules.orders import usage as order_usage
 from app.modules.users.models import User
 
 
@@ -55,7 +55,7 @@ def _in_use_error(customer: Customer, order_count: int | None = None) -> Conflic
 
 def delete_customer(db: Session, user: User, customer_id: int) -> None:
     customer = get_customer(db, user, customer_id)
-    order_count = order_service.count_orders_for_customer(db, customer.id)
+    order_count = order_usage.count_orders_for_customer(db, customer.id)
     if order_count:
         raise _in_use_error(customer, order_count)
     try:
@@ -66,3 +66,12 @@ def delete_customer(db: Session, user: User, customer_id: int) -> None:
         # the foreign key (ON DELETE RESTRICT) stopped it.
         db.rollback()
         raise _in_use_error(customer) from exc
+
+
+# --- Used by the orders module ----------------------------------------------
+def find_customer(db: Session, customer_id: int, *, lock_for_share: bool = False):
+    """Return the customer (active or not) or None. ``lock_for_share`` takes a shared
+    lock, so the customer cannot be changed or deleted until our transaction ends."""
+    if lock_for_share:
+        return repository.get_for_share(db, customer_id)
+    return repository.get(db, customer_id)

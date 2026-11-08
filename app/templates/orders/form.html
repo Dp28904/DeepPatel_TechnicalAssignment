@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% set is_new = order_id is none %}
+{% block title %}{{ "New order" if is_new else "Edit order" }}{% endblock %}
+
+{% block content %}
+<p><a href="{{ '/orders' if is_new else '/orders/' ~ order_id }}">‹ Back</a></p>
+<div class="page-header">
+  <h1 id="page-title">{{ "New sales order" if is_new else "Edit order" }}</h1>
+  <span class="badge badge-draft">Draft</span>
+</div>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<form id="order-form" novalidate data-order-id="{{ '' if is_new else order_id }}">
+  <section class="card">
+    <div class="form-grid">
+      <div class="field">
+        <label for="customer_id">Customer *</label>
+        <select id="customer_id" name="customer_id" required>
+          <option value="">Loading customers…</option>
+        </select>
+        <p class="field-error" data-error-for="customer_id"></p>
+      </div>
+      <div class="field">
+        <label for="order_date">Order date</label>
+        <input id="order_date" name="order_date" type="date">
+        <p class="field-error" data-error-for="order_date"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card table-card items-card">
+    <table class="data-table items-table">
+      <thead>
+        <tr>
+          <th class="col-product">Product *</th>
+          <th class="num">Rate</th>
+          <th class="num">In stock</th>
+          <th class="num col-qty">Quantity *</th>
+          <th class="num">Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="item-rows"></tbody>
+    </table>
+    <div class="items-footer">
+      <button type="button" id="add-row" class="btn btn-ghost">+ Add item</button>
+      <p class="field-error" data-error-for="items"></p>
+    </div>
+  </section>
+
+  <section class="card totals-card">
+    <div class="field discount-field">
+      <label for="discount_percent">Discount % (0–{{ limits.maxDiscountPercent }})</label>
+      <input id="discount_percent" name="discount_percent" inputmode="decimal" value="0">
+      <p class="field-error" data-error-for="discount_percent"></p>
+    </div>
+    <dl class="totals">
+      <dt>Subtotal</dt><dd id="subtotal">0.00</dd>
+      <dt>Discount</dt><dd id="discount-amount">0.00</dd>
+      <dt class="grand">Grand total</dt><dd class="grand" id="grand-total">0.00</dd>
+    </dl>
+    <p class="hint">Totals update as you type. The server recalculates every amount when you save.</p>
+    <div class="form-actions">
+      <button type="submit" id="save-button" class="btn btn-primary">{{ "Create draft order" if is_new else "Save changes" }}</button>
+      <a class="btn btn-ghost" href="{{ '/orders' if is_new else '/orders/' ~ order_id }}">Cancel</a>
+    </div>
+  </section>
+</form>
+
+<template id="item-row-template">
+  <tr class="item-row">
+    <td class="col-product">
+      <select class="product-select" required><option value="">Select a product…</option></select>
+      <p class="field-error" data-role="product-error"></p>
+    </td>
+    <td class="num" data-role="rate">–</td>
+    <td class="num" data-role="stock">–</td>
+    <td class="num col-qty">
+      <input class="qty-input" type="number" min="{{ limits.minQuantity }}" max="{{ limits.maxQuantity }}" step="1" value="1" required>
+      <p class="field-error" data-role="qty-error"></p>
+    </td>
+    <td class="num" data-role="amount">0.00</td>
+    <td class="actions"><button type="button" class="btn btn-ghost btn-sm remove-row" aria-label="Remove item">✕</button></td>
+  </tr>
+</template>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/order_form.js"></script>{% endblock %}

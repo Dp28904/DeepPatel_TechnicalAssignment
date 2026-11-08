@@ -16,7 +16,7 @@ from app.core.exceptions import Conflict, NotFound
 from app.core.pagination import PageParams, paginate
 from app.modules.inventory import service as inventory_service
 from app.modules.inventory.schemas import StockMovementOut
-from app.modules.orders import service as order_service
+from app.modules.orders import usage as order_usage
 from app.modules.products import repository
 from app.modules.products.models import Product
 from app.modules.products.schemas import (
@@ -107,7 +107,7 @@ def update_product(db: Session, user: User, product_id: int, data: ProductUpdate
 
 def delete_product(db: Session, user: User, product_id: int) -> None:
     product = get_product(db, user, product_id)
-    item_count = order_service.count_items_for_product(db, product.id)
+    item_count = order_usage.count_items_for_product(db, product.id)
     movement_count = inventory_service.count_movements_for_product(db, product.id)
     if item_count or movement_count:
         reasons = []
@@ -174,3 +174,14 @@ def adjust_stock(
         product=ProductOut.model_validate(product),
         movement=StockMovementOut.from_model(movement),
     )
+
+
+# --- Used by the orders module ----------------------------------------------
+def get_products_by_ids(db: Session, product_ids: list[int]) -> dict[int, Product]:
+    """Plain read (no lock) of several products, keyed by id. Missing ids are absent."""
+    return repository.get_many(db, product_ids)
+
+
+def lock_products(db: Session, product_ids: list[int]) -> dict[int, Product]:
+    """Lock product rows (ascending id order) for a stock-changing transaction."""
+    return repository.lock_many(db, sorted(set(product_ids)))

@@ -16,9 +16,11 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal, engine
 from app.core.enums import Role
-from app.models import Base, Customer
+from app.models import Base, Customer, SalesOrder
 from app.modules.customers import service as customer_service
 from app.modules.customers.schemas import CustomerIn
+from app.modules.orders import service as order_service
+from app.modules.orders.schemas import OrderIn
 from app.modules.products import repository as product_repository
 from app.modules.products import service as product_service
 from app.modules.products.schemas import ProductCreate
@@ -124,6 +126,76 @@ def seed_products(db: Session, admin) -> None:
         print(f"  created product {code} (stock {stock})")
 
 
+# customer, created by (admin/sales1/sales2), order date, discount %, items, what to do
+SAMPLE_ORDERS = [
+    (
+        "Shree Ganesh Traders",
+        "sales1",
+        "2026-08-05",
+        "10",
+        [("PRD-001", 2), ("PRD-002", 3)],
+        "confirm",
+    ),
+    ("Patel Electronics", "sales1", "2026-08-18", "5", [("PRD-101", 2), ("PRD-301", 4)], "confirm"),
+    ("Mehta & Sons", "sales2", "2026-09-02", "0", [("PRD-201", 3), ("PRD-401", 10)], "confirm"),
+    (
+        "Kumar IT Solutions",
+        "sales2",
+        "2026-09-21",
+        "15",
+        [("PRD-102", 1), ("PRD-003", 2)],
+        "confirm",
+    ),
+    (
+        "Shree Ganesh Traders",
+        "admin",
+        "2026-10-03",
+        "20",
+        [("PRD-202", 2), ("PRD-201", 2)],
+        "confirm",
+    ),
+    (
+        "Sunrise Office Supplies",
+        "sales1",
+        "2026-10-14",
+        "0",
+        [("PRD-401", 25), ("PRD-301", 10)],
+        "confirm",
+    ),
+    ("Patel Electronics", "sales2", "2026-10-28", "10", [("PRD-002", 5)], "confirm+cancel"),
+    ("Green Leaf Stationers", "sales1", "2026-11-02", "0", [("PRD-401", 15)], "confirm"),
+    ("Kumar IT Solutions", "sales1", "2026-11-05", "5", [("PRD-101", 1), ("PRD-002", 2)], "draft"),
+    # Webcam stock is 3, so confirming this draft fails: handy for the demo.
+    ("Mehta & Sons", "sales2", "2026-11-06", "0", [("PRD-004", 5)], "draft"),
+    ("Sunrise Office Supplies", "sales2", "2026-11-07", "0", [("PRD-003", 1)], "cancel"),
+]
+
+
+def seed_orders(db: Session, users: dict) -> None:
+    if db.scalar(select(SalesOrder.id).limit(1)):
+        print("  orders exist, skipped")
+        return
+    customers = {c.name: c for c in db.scalars(select(Customer))}
+    for customer_name, owner, order_date, discount, items, action in SAMPLE_ORDERS:
+        user = users[owner]
+        data = OrderIn(
+            customer_id=customers[customer_name].id,
+            order_date=order_date,
+            discount_percent=discount,
+            items=[
+                {"product_id": product_repository.get_by_code(db, code).id, "quantity": qty}
+                for code, qty in items
+            ],
+        )
+        # Through the real services, so totals, stock and movements are all consistent.
+        order = order_service.create_order(db, user, data)
+        if "confirm" in action:
+            order_service.confirm_order(db, user, order.id)
+        if "cancel" in action:
+            order_service.cancel_order(db, user, order.id)
+        print(f"  {order.order_number} {customer_name:<24} {action}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m db.seed")
     parser.add_argument("--reset", action="store_true", help="empty all tables before seeding")
@@ -141,6 +213,13 @@ def main(argv: list[str] | None = None) -> int:
         seed_customers(db)
         print("Seeding products...")
         seed_products(db, admin)
+        print("Seeding orders...")
+        users = {
+            "admin": admin,
+            "sales1": user_repository.get_by_email(db, settings.seed_sales1_email),
+            "sales2": user_repository.get_by_email(db, settings.seed_sales2_email),
+        }
+        seed_orders(db, users)
     print("Done.")
     return 0
 
