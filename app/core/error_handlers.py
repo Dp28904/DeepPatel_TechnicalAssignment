@@ -105,16 +105,21 @@ def register_error_handlers(app: FastAPI) -> None:
                 "lock_conflict",
                 "This record is being updated by another request. Please try again.",
             )
+        # Any other database error (e.g. connection lost): log it here, because this
+        # handler runs inside the middleware, which therefore never sees the exception.
+        logger.exception("Database error on %s %s", request.method, request.url.path)
         return await handle_unexpected_error(request, exc)
 
     @app.exception_handler(Exception)
     async def handle_unexpected_error(request: Request, exc: Exception):
-        # Full traceback goes to the server log only; the client gets a generic message.
-        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+        # The traceback was already logged (with the request id) by RequestIdMiddleware.
+        # The client only gets a generic message plus the id to quote to support.
+        request_id = getattr(request.state, "request_id", None) or request_id_var.get()
         return _respond(
             request,
             500,
             "internal_error",
             "An unexpected error occurred. Please try again later.",
-            {"request_id": request_id_var.get()},
+            {"request_id": request_id},
+            headers={"X-Request-ID": request_id},
         )

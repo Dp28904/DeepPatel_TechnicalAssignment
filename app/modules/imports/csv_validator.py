@@ -97,8 +97,8 @@ def _friendly_message(column: str, error: dict) -> str:
         return f"{label} is too large (maximum {ctx.get('le')})."
     if kind == "decimal_max_places":
         return f"{label} can have at most 2 decimal places."
-    if kind in ("decimal_parsing", "decimal_type"):
-        return f"{label} must be a number."
+    if kind in ("decimal_parsing", "decimal_type") or (kind == "value_error" and column == "price"):
+        return f"{label} must be a number, such as 1500 or 1500.50."
     if kind == "decimal_max_digits":
         return f"{label} is too large."
     return error.get("msg", "Invalid value").removeprefix("Value error, ")

@@ -9,11 +9,16 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Annotated
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, BeforeValidator, Field, field_validator
 
-from app.core.constants import MAX_DISCOUNT_PERCENT, MAX_ITEM_QUANTITY, MIN_DISCOUNT_PERCENT
+from app.core.constants import (
+    MAX_DISCOUNT_PERCENT,
+    MAX_ITEM_QUANTITY,
+    MIN_DISCOUNT_PERCENT,
+    MIN_ORDER_DATE,
+)
 from app.core.enums import OrderStatus
-from app.core.schemas import InputModel, PositiveWholeNumber
+from app.core.schemas import InputModel, PositiveWholeNumber, plain_number
 from app.modules.orders.models import SalesOrder
 
 
@@ -29,15 +34,18 @@ class OrderIn(InputModel):
     order_date: date | None = None  # defaults to today
     discount_percent: Annotated[
         Decimal,
+        BeforeValidator(plain_number),
         Field(ge=MIN_DISCOUNT_PERCENT, le=MAX_DISCOUNT_PERCENT, max_digits=5, decimal_places=2),
     ] = Decimal("0")
     items: list[OrderItemIn]
 
     @field_validator("order_date")
     @classmethod
-    def not_in_future(cls, value: date | None) -> date | None:
+    def within_sensible_range(cls, value: date | None) -> date | None:
         if value is not None and value > date.today():
             raise ValueError("Order date cannot be in the future.")
+        if value is not None and value < MIN_ORDER_DATE:
+            raise ValueError(f"Order date cannot be before {MIN_ORDER_DATE.isoformat()}.")
         return value
 
     @field_validator("items")

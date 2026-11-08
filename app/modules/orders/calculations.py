@@ -17,6 +17,7 @@ from decimal import Decimal
 from app.core.constants import (
     MAX_DISCOUNT_PERCENT,
     MAX_ITEM_QUANTITY,
+    MAX_MONEY_AMOUNT,
     MIN_DISCOUNT_PERCENT,
     MIN_ITEM_QUANTITY,
 )
@@ -66,9 +67,19 @@ def validate_discount_percent(discount_percent) -> Decimal:
     return value
 
 
+def _check_amount_fits(amount: Decimal, what: str) -> Decimal:
+    # Amounts are stored as DECIMAL(12,2); a bigger number cannot be saved.
+    if amount > MAX_MONEY_AMOUNT:
+        raise ValidationFailed(
+            f"{what} of {amount:,} is too large. The maximum is {MAX_MONEY_AMOUNT:,}."
+        )
+    return amount
+
+
 def line_amount(quantity, rate) -> Decimal:
     """Item Amount = Quantity x Rate, rounded to 2 decimals."""
-    return round_money(validate_quantity(quantity) * validate_rate(rate))
+    amount = round_money(validate_quantity(quantity) * validate_rate(rate))
+    return _check_amount_fits(amount, "An item amount")
 
 
 def calculate_order_totals(lines: Iterable[tuple[int, Decimal]], discount_percent) -> OrderTotals:
@@ -82,7 +93,7 @@ def calculate_order_totals(lines: Iterable[tuple[int, Decimal]], discount_percen
         raise ValidationFailed("An order needs at least one item.")
 
     percent = validate_discount_percent(discount_percent)
-    subtotal = round_money(sum(amounts, Decimal("0")))
+    subtotal = _check_amount_fits(round_money(sum(amounts, Decimal("0"))), "The order subtotal")
     discount_amount = round_money(subtotal * percent / Decimal("100"))
     grand_total = round_money(subtotal - discount_amount)
 

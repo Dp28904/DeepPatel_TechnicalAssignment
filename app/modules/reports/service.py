@@ -1,6 +1,6 @@
 """Report business rules: input checks, totals and consistent money formatting."""
 
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time
 
 from sqlalchemy.orm import Session
 
@@ -98,12 +98,13 @@ def stock_movements(
     date_to: date | None,
 ) -> dict:
     _check_range(date_from, date_to)
-    # Movement timestamps are stored in UTC; the range covers whole days, so the
-    # end bound is "before the start of the day after date_to".
+    # Movement timestamps are stored in UTC; the range covers whole days, from the
+    # first to the last moment of each day. (Adding a day to date_to would overflow
+    # for 9999-12-31.)
     statement = repository.stock_movements_statement(
         product_id=product_id,
         movement_type=movement_type,
         created_from=datetime.combine(date_from, time.min) if date_from else None,
-        created_before=datetime.combine(date_to + timedelta(days=1), time.min) if date_to else None,
+        created_to=datetime.combine(date_to, time.max) if date_to else None,
     )
     return paginate(db, statement, params, StockMovementOut.from_model)

@@ -23,6 +23,21 @@ Exact dependency versions are pinned in [requirements.txt](requirements.txt) and
 
 ## Quick start
 
+### Option A: everything in Docker (fastest)
+
+Prerequisites: Docker with Compose v2.
+
+```bash
+cp .env.example .env     # then set SECRET_KEY and the sample passwords
+docker compose up --build
+```
+
+Then open http://localhost:8000. The app container waits for MySQL, applies the migrations and
+loads the sample data. Seeding is safe to repeat. Set `SEED_ON_START=false` in `.env` to skip it,
+or `APP_PORT` to use another port.
+
+### Option B: run the app locally (development)
+
 Prerequisites: Python 3.12, Docker (or an existing MySQL 8.x server), Git.
 
 ```bash

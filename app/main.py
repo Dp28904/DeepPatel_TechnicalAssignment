@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent
 health_router = APIRouter(prefix="/api", tags=["health"])
 
 
-@health_router.get("/health")
+@health_router.api_route("/health", methods=["GET", "HEAD"])
 def health():
     """Liveness + database connectivity check."""
     if not ping_database():

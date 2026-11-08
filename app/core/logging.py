@@ -38,10 +38,19 @@ def configure_logging(level: str = "INFO") -> None:
 class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         request_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:12]
+        # Also kept on the request itself: the 500 handler runs outside this middleware,
+        # after the context variable below has been reset.
+        request.state.request_id = request_id
         token = request_id_var.set(request_id)
         started = time.perf_counter()
         try:
-            response = await call_next(request)
+            try:
+                response = await call_next(request)
+            except Exception:
+                # Log the traceback here, while the request id is still attached to
+                # log lines, then let the error handler build the generic 500 reply.
+                logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+                raise
             elapsed_ms = (time.perf_counter() - started) * 1000
             response.headers["X-Request-ID"] = request_id
             logger.info(
