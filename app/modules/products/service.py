@@ -66,20 +66,34 @@ def get_product(db: Session, user: User, product_id: int) -> Product:
 
 
 # --- Writing --------------------------------------------------------------
+def add_product(
+    db: Session, user: User, data: ProductCreate, reason: str = OPENING_STOCK_REASON
+) -> Product:
+    """Insert a product and record its opening stock as a stock movement. Does NOT commit:
+    used by create_product (one product) and the CSV import (many, in one transaction)."""
+    product = repository.add(db, Product(**data.model_dump()))
+    if product.stock_quantity > 0:
+        inventory_service.record_movement(
+            db,
+            product_id=product.id,
+            movement_type=MovementType.OPENING,
+            quantity_change=product.stock_quantity,
+            user_id=user.id,
+            reason=reason,
+        )
+    return product
+
+
+def existing_codes(db: Session, codes: list[str]) -> set[str]:
+    """Which of these product codes already exist (any status)."""
+    return repository.existing_codes(db, codes)
+
+
 def create_product(db: Session, user: User, data: ProductCreate) -> Product:
     if repository.get_by_code(db, data.code):
         raise _duplicate_code_error(data.code)
     try:
-        product = repository.add(db, Product(**data.model_dump()))
-        if product.stock_quantity > 0:
-            inventory_service.record_movement(
-                db,
-                product_id=product.id,
-                movement_type=MovementType.OPENING,
-                quantity_change=product.stock_quantity,
-                user_id=user.id,
-                reason=OPENING_STOCK_REASON,
-            )
+        product = add_product(db, user, data)
         db.commit()
     except IntegrityError as exc:
         # Another request inserted the same code after our check: the UNIQUE key caught it.

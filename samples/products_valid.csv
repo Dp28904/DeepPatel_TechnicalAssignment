@@ -1,0 +1,7 @@
+product_code,product_name,category,price,stock_quantity,status
+IMP-001,Wireless Keyboard,Accessories,1899,30,Active
+IMP-002,Wireless Mouse,Accessories,749.50,45,Active
+IMP-003,Laptop Sleeve 15 inch,Accessories,999,0,Active
+IMP-004,"Desk Lamp, LED",Furniture,1299.99,12,active
+IMP-005,Whiteboard Markers (Pack of 4),Stationery,180,60,ACTIVE
+IMP-006,Parallel Port Cable,Cables,99,5,Inactive

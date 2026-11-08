@@ -1,0 +1,13 @@
+product_code,product_name,category,price,stock_quantity,status
+BAD-001,Valid Row But File Rejected,Accessories,100,10,Active
+BAD-002,,Accessories,100,10,Active
+BAD-003,Negative Price,Accessories,-50,10,Active
+BAD-004,Price Not A Number,Accessories,abc,10,Active
+BAD-005,Too Many Decimals,Accessories,10.999,10,Active
+BAD-006,Fractional Stock,Accessories,100,2.5,Active
+BAD-007,Negative Stock,Accessories,100,-3,Active
+BAD-008,Unknown Status,Accessories,100,10,Pending
+BAD-001,Duplicate Code In File,Accessories,100,10,Active
+PRD-001,Code Already In Database,Accessories,100,10,Active
+BAD 009!,Invalid Code Characters,Accessories,100,10,Active
+BAD-010,Missing Columns,Accessories,100

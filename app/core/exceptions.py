@@ -41,6 +41,11 @@ class NotFound(AppError):
     code = "not_found"
 
 
+class PayloadTooLarge(AppError):
+    status_code = 413
+    code = "payload_too_large"
+
+
 class Conflict(AppError):
     """The request conflicts with the current state, e.g. stock or order status (HTTP 409)."""
 
