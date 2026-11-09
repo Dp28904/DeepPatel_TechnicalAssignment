@@ -40,8 +40,30 @@ pip install -r requirements-dev.txt
 # 4. Create the tables
 alembic upgrade head
 
-# 5. Run
+# 5. Load sample data (accounts use the SEED_* values from your .env)
+python -m db.seed            # add --reset to empty all tables first
+
+# 6. Run, then open http://localhost:8000
 uvicorn app.main:app --reload --port 8000
+```
+
+## Sample accounts
+
+`python -m db.seed` creates three accounts. Their emails and passwords come from the `SEED_*`
+variables in your `.env`; `.env.example` holds placeholders only, so no real credentials are
+committed.
+
+| Role | Email (default) | Password |
+|---|---|---|
+| Admin | `admin@example.com` | value of `SEED_ADMIN_PASSWORD` |
+| Sales User | `sales1@example.com` | value of `SEED_SALES1_PASSWORD` |
+| Sales User | `sales2@example.com` | value of `SEED_SALES2_PASSWORD` |
+
+To create more accounts (the password is prompted for and never stored in shell history):
+
+```bash
+python -m app.cli create-user --name "Asha Admin" --email asha@example.com --role ADMIN
+python -m app.cli create-user --name "Ravi Sales" --email ravi@example.com --role SALES
 ```
 
 The full DDL is also available as [db/schema.sql](db/schema.sql) (generated from the migrations

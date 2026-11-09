@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+<section class="login-card card">
+  <h1>Sales &amp; Inventory</h1>
+  <p class="muted">Log in to continue.</p>
+
+  <div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+  <form id="login-form" novalidate data-next="{{ next_path }}">
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="username" required autofocus>
+      <p class="field-error" data-error-for="email"></p>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <p class="field-error" data-error-for="password"></p>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Log in</button>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/login.js"></script>{% endblock %}

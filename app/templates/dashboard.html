@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ user.name }}</h1>
+<p class="muted">
+  You are logged in as {{ "an Admin" if user.is_admin else "a Sales User" }}.
+  {% if user.is_admin %}
+    You can manage customers, products, stock and all orders, and view reports.
+  {% else %}
+    You can view active customers and products, and create and manage your own orders.
+  {% endif %}
+</p>
+{% endblock %}

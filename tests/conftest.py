@@ -28,8 +28,11 @@ from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy import make_url, text  # noqa: E402
 
 from app.core.database import SessionLocal, engine  # noqa: E402
+from app.core.enums import Role  # noqa: E402
 from app.main import create_app  # noqa: E402
 from app.models import Base  # noqa: E402
+from app.modules.users import service as user_service  # noqa: E402
+from app.modules.users.schemas import UserCreate  # noqa: E402
 
 if not (make_url(TEST_DATABASE_URL).database or "").endswith("_test"):
     raise RuntimeError(
@@ -77,6 +80,61 @@ def db_session(migrated_database):
         _truncate_all_tables()
 
 
+@pytest.fixture(scope="session")
+def app():
+    return create_app()
+
+
 @pytest.fixture
-def client() -> TestClient:
-    return TestClient(create_app(), raise_server_exceptions=False)
+def client(app) -> TestClient:
+    """An anonymous browser-like client that sends the CSRF header like our JavaScript does."""
+    return TestClient(app, raise_server_exceptions=False, headers={"X-Requested-With": "fetch"})
+
+
+# --- Users and logged-in clients -----------------------------------------
+TEST_PASSWORD = "Correct-Horse-9"
+
+
+def _create_user(db, name: str, email: str, role: Role, password: str = TEST_PASSWORD):
+    return user_service.create_user(
+        db, UserCreate(name=name, email=email, password=password, role=role)
+    )
+
+
+@pytest.fixture
+def admin_user(db_session):
+    return _create_user(db_session, "Test Admin", "admin@example.com", Role.ADMIN)
+
+
+@pytest.fixture
+def sales_user(db_session):
+    return _create_user(db_session, "Test Sales", "sales@example.com", Role.SALES)
+
+
+@pytest.fixture
+def other_sales_user(db_session):
+    return _create_user(db_session, "Other Sales", "other.sales@example.com", Role.SALES)
+
+
+def login_client(app, email: str, password: str = TEST_PASSWORD) -> TestClient:
+    test_client = TestClient(
+        app, raise_server_exceptions=False, headers={"X-Requested-With": "fetch"}
+    )
+    response = test_client.post("/api/auth/login", json={"email": email, "password": password})
+    assert response.status_code == 200, response.text
+    return test_client
+
+
+@pytest.fixture
+def admin_client(app, admin_user) -> TestClient:
+    return login_client(app, admin_user.email)
+
+
+@pytest.fixture
+def sales_client(app, sales_user) -> TestClient:
+    return login_client(app, sales_user.email)
+
+
+@pytest.fixture
+def other_sales_client(app, other_sales_user) -> TestClient:
+    return login_client(app, other_sales_user.email)

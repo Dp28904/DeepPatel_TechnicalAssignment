@@ -1,0 +1,72 @@
+"""FastAPI dependencies for authentication and role checks.
+
+Two flavours:
+- API routes use ``get_current_user`` / ``require_admin``: they raise 401/403 JSON errors.
+- Page routes use ``get_page_user`` / ``require_page_admin``: an anonymous visitor is
+  redirected to the login page instead.
+
+Permissions are always enforced here, on the server. Hiding a link in the UI is
+only a convenience.
+"""
+
+from urllib.parse import quote
+
+from fastapi import Depends, Request
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
+from app.core.exceptions import Forbidden, Unauthenticated
+from app.modules.users import service as user_service
+from app.modules.users.models import User
+
+SESSION_USER_KEY = "user_id"
+
+
+class LoginRequired(Exception):
+    """Raised by page dependencies; handled by redirecting to /login."""
+
+    def __init__(self, next_path: str):
+        self.next_path = next_path
+
+    @property
+    def redirect_url(self) -> str:
+        return f"/login?next={quote(self.next_path)}"
+
+
+def _load_session_user(request: Request, db: Session) -> User | None:
+    user_id = request.session.get(SESSION_USER_KEY)
+    if not isinstance(user_id, int):
+        return None
+    user = user_service.get_active_user(db, user_id)
+    if user is None:
+        # The account was deactivated or deleted after login: end the session.
+        request.session.clear()
+    return user
+
+
+# --- API ------------------------------------------------------------------
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    user = _load_session_user(request, db)
+    if user is None:
+        raise Unauthenticated("Please log in to continue.")
+    return user
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    if not user.is_admin:
+        raise Forbidden("Only Admin users can perform this action.")
+    return user
+
+
+# --- Pages ----------------------------------------------------------------
+def get_page_user(request: Request, db: Session = Depends(get_db)) -> User:
+    user = _load_session_user(request, db)
+    if user is None:
+        raise LoginRequired(request.url.path)
+    return user
+
+
+def require_page_admin(user: User = Depends(get_page_user)) -> User:
+    if not user.is_admin:
+        raise Forbidden("Only Admin users can open this page.")
+    return user
