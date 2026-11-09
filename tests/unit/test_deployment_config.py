@@ -116,3 +116,16 @@ def test_ssl_mode_disabled_means_no_tls(monkeypatch):
 def test_bad_ssl_settings_explain_themselves(overrides, message):
     with pytest.raises(ValidationError, match=message):
         settings(**overrides)
+
+
+def test_certificate_pasted_into_the_path_variable_is_recognised(monkeypatch):
+    """The slip seen on Render: certificate text in DATABASE_SSL_CA instead of _PEM."""
+    s = settings(database_ssl_ca=PEM.replace("\n", "\\n"))
+    assert s.database_ssl_ca is None and "BEGIN CERTIFICATE" in s.database_ssl_ca_pem
+    use(monkeypatch, s)
+    assert pathlib.Path(database.connect_args()["ssl"]["ca"]).read_text().strip() == PEM
+
+
+def test_an_impossible_path_gives_the_clear_message_not_a_crash():
+    with pytest.raises(ValidationError, match="no file exists there"):
+        settings(database_ssl_ca="x" * 5000)

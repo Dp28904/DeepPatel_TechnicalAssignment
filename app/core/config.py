@@ -37,6 +37,15 @@ def normalise_database_url(url: str) -> tuple[str, str | None]:
     return urlunsplit(parts._replace(query=urlencode(kept))), ssl_mode
 
 
+def _is_file(path: str) -> bool:
+    """Like Path.is_file(), but a value that cannot be a path (too long, odd characters)
+    is simply "not a file" instead of crashing start-up."""
+    try:
+        return Path(path).is_file()
+    except (OSError, ValueError):
+        return False
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
@@ -77,6 +86,15 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def accept_certificate_text_in_either_variable(self) -> "Settings":
+        # A common slip: pasting the certificate itself into DATABASE_SSL_CA (meant for a
+        # file path). Recognise it and treat it as DATABASE_SSL_CA_PEM.
+        if self.database_ssl_ca and "BEGIN CERTIFICATE" in self.database_ssl_ca:
+            self.database_ssl_ca_pem = self.database_ssl_ca_pem or self.database_ssl_ca
+            self.database_ssl_ca = None
+        return self
+
+    @model_validator(mode="after")
     def certificate_must_exist(self) -> "Settings":
         if self.database_ssl_ca_pem:
             if "BEGIN CERTIFICATE" not in self.database_ssl_ca_pem:
@@ -84,7 +102,7 @@ class Settings(BaseSettings):
                     "DATABASE_SSL_CA_PEM must contain the whole certificate, including the "
                     "'-----BEGIN CERTIFICATE-----' and '-----END CERTIFICATE-----' lines."
                 )
-        elif self.database_ssl_ca and not Path(self.database_ssl_ca).is_file():
+        elif self.database_ssl_ca and not _is_file(self.database_ssl_ca):
             raise ValueError(
                 f"DATABASE_SSL_CA points to '{self.database_ssl_ca}', but no file exists there. "
                 "On Render: open the service -> Environment -> Secret Files and add a file named "
