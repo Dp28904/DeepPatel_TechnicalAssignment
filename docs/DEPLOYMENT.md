@@ -19,11 +19,13 @@ On every start, the container's entrypoint waits for the database, runs `alembic
 2. When the service is *Running*, open its **Overview**. Note the **Host**, **Port**, **User** (`avnadmin`), **Password** and **Database** (`defaultdb`).
 3. Download the **CA certificate** (`ca.pem`) from the same page.
 
-Your `DATABASE_URL` is built from those values:
+Your `DATABASE_URL` can be Aiven's **Service URI pasted as-is**:
 
 ```
-mysql+pymysql://avnadmin:<PASSWORD>@<HOST>:<PORT>/defaultdb
+mysql://avnadmin:<PASSWORD>@<HOST>:<PORT>/defaultdb?ssl-mode=REQUIRED
 ```
+
+The app rewrites `mysql://` to its PyMySQL driver (`mysql+pymysql://`) and turns `ssl-mode=REQUIRED` into an encrypted connection. With the CA certificate added (next section), the server's identity is verified as well. That is recommended, but the app works without it.
 
 If the password contains special characters such as `@`, `:`, `/` or `#`, URL-encode them (e.g. `@` becomes `%40`).
 

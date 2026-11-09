@@ -7,7 +7,6 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 SSL_MODES = ("DISABLED", "PREFERRED", "REQUIRED", "VERIFY_CA", "VERIFY_IDENTITY")
 # URL prefixes that mean "MySQL" but would select a driver this app does not install.
 _OTHER_MYSQL_PREFIXES = ("mysql://", "mysql+mysqldb://", "mysql+mysqlconnector://")
