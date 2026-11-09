@@ -1,6 +1,6 @@
 # Testing
 
-**516 automated tests** cover the application and the debugging exercise.
+**517 automated tests** cover the application and the debugging exercise.
 
 | Check | Result |
 |---|---|
@@ -15,7 +15,7 @@ The tests use a real MySQL database, `sales_test`, because row locks, CHECK cons
 
 ```bash
 docker compose up -d mysql               # MySQL 8.4 with sales_db and sales_test
-pytest                                   # everything (about a minute)
+pytest                                   # all 517 tests (about a minute)
 pytest --cov=app --cov=debugging         # with coverage
 pytest debugging                         # only the debugging exercise (no database needed)
 pytest tests/unit                        # only the pure unit tests (no database needed)
@@ -50,10 +50,10 @@ Safety: the suite refuses to run unless the database name ends in `_test`. The s
 | `tests/integration/test_customers_api.py` | 28 | Customer CRUD, search and filter, role visibility, safe delete |
 | `tests/integration/test_dashboard.py` | 9 | Dashboard: role scoping (all vs own orders), headline numbers, zero-filled monthly trend, category/product/customer/team rankings, low stock, date range |
 | `tests/integration/test_reports.py` | 25 | All 4 reports and all 5 queries in `sql/queries.sql`, checked against a dataset with hand-calculated results |
-| `tests/integration/test_csv_import.py` | 15 | All-or-nothing import, row errors, opening stock, the sample files, limits, permissions |
+| `tests/integration/test_csv_import.py` | 13 | All-or-nothing import, row errors, opening stock, the sample files, limits, permissions |
 | `tests/integration/test_friendly_errors.py` | 18 | Every validation error is a plain sentence naming the field ("Name is required.", "Item 2 quantity must be 1 or more."), for bodies, query parameters, dates and invalid JSON |
-| `tests/integration/test_user_management.py` | 29 | Admin adds Sales Users and Admins; edits Sales Users (name, login email, password); Admin edits self and changes own password with the current one; no editing other Admins; Sales Users cannot change passwords; a password change signs out other sessions; passwords are never trimmed |
-| `tests/integration/test_auth.py` | 28 | Login and logout, sessions, inactive users, CSRF, role checks, page redirects |
+| `tests/integration/test_user_management.py` | 28 | Admin adds Sales Users and Admins; edits Sales Users (name, login email, password); Admin edits self and changes own password with the current one; no editing other Admins; Sales Users cannot change passwords; a password change signs out other sessions; passwords are never trimmed |
+| `tests/integration/test_auth.py` | 34 | Login and logout, sessions, inactive users, CSRF, role checks, page redirects |
 | `tests/integration/test_schema.py` | 26 | Database constraints: CHECK, UNIQUE, FOREIGN KEY RESTRICT/CASCADE, DECIMAL storage |
 | `tests/integration/test_users_cli_seed.py` | 7 | The account CLI and the seed script (idempotent, `--reset`) |
 | `tests/integration/test_master_data_pages.py`, `test_order_pages.py` | 20 | HTML pages render for the right roles; login redirects |
@@ -130,7 +130,7 @@ Each one now has a regression test in `test_api_contract.py`.
 | 8 | Order date `0001-01-01` | Accepted | No lower bound | Order date must be on or after 2000-01-01 |
 | 9 | `HEAD /api/health` | 405 | Only GET was routed | Health answers GET and HEAD |
 
-Bugs found earlier, during development, are listed in `AI_USAGE.md`.
+Issues found earlier, during development and while reviewing AI-generated code, are listed in [AI_USAGE.md](../AI_USAGE.md).
 
 ### Accepted by design
 
@@ -142,4 +142,4 @@ Bugs found earlier, during development, are listed in `AI_USAGE.md`.
 
 ## Concurrency proof
 
-The concurrency tests send real simultaneous requests using `threading.Barrier`. To confirm they really guard the code, the product row lock was **removed temporarily**. The tests then failed every time (stock went negative, or stock was deducted twice), and passed again once the lock was restored. See `docs/CONCURRENCY.md` for the locking design.
+The concurrency tests send real simultaneous requests using `threading.Barrier`. To confirm they really guard the code, the product row lock was **removed temporarily**. The tests then failed every time (stock went negative, or stock was deducted twice), and passed again once the lock was restored. See [CONCURRENCY.md](CONCURRENCY.md) for the locking design.
