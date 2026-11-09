@@ -48,6 +48,12 @@ def lock_many(db: Session, product_ids: list[int]) -> dict[int, Product]:
     return {product.id: product for product in rows}
 
 
+def existing_codes(db: Session, codes: list[str]) -> set[str]:
+    if not codes:
+        return set()
+    return set(db.scalars(select(Product.code).where(Product.code.in_(codes))))
+
+
 def get_by_code(db: Session, code: str) -> Product | None:
     return db.scalar(select(Product).where(Product.code == code))
 

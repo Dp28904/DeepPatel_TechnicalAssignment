@@ -141,3 +141,21 @@ input[readonly], input:disabled, select:disabled { background: var(--bg); color:
 .meta-grid dd { margin: 0; font-weight: 600; }
 #stock-problems ul { margin: 6px 0 0; padding-left: 20px; }
 section.card + section.card, section.card + .alert, .alert + section.card { margin-top: 12px; }
+
+/* --- CSV import --- */
+.code-block { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: .85rem; }
+.compact-list { padding-left: 18px; margin: 8px 0; }
+.data-table td.wrap { white-space: normal; }
+#result { margin-top: 16px; }
+
+/* --- Reports --- */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.tabs button { background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 14px; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--primary); border-bottom-color: var(--primary); }
+.report-filters label { display: block; font-weight: 600; }
+.report-filters label input, .report-filters label select { margin-top: 4px; }
+.data-table tfoot th { background: #fafafa; text-transform: none; font-size: .95rem; color: var(--text); }
+.data-table tfoot th.num { text-align: right; }
+.muted-row td { color: var(--muted); }
+.negative { color: var(--danger); font-weight: 600; }
+.positive { color: var(--success); font-weight: 600; }

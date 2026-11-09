@@ -16,10 +16,14 @@ from app.modules.auth import pages as auth_pages
 from app.modules.auth import router as auth_api
 from app.modules.customers import pages as customer_pages
 from app.modules.customers import router as customer_api
+from app.modules.imports import pages as import_pages
+from app.modules.imports import router as import_api
 from app.modules.orders import pages as order_pages
 from app.modules.orders import router as order_api
 from app.modules.products import pages as product_pages
 from app.modules.products import router as product_api
+from app.modules.reports import pages as report_pages
+from app.modules.reports import router as report_api
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -61,9 +65,16 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(health_router)
-    for module_api in (auth_api, customer_api, product_api, order_api):
+    for module_api in (auth_api, customer_api, product_api, order_api, import_api, report_api):
         app.include_router(module_api.router)
-    for module_pages in (auth_pages, customer_pages, product_pages, order_pages):
+    for module_pages in (
+        auth_pages,
+        customer_pages,
+        product_pages,
+        order_pages,
+        import_pages,
+        report_pages,
+    ):
         app.include_router(module_pages.router)
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
     return app
