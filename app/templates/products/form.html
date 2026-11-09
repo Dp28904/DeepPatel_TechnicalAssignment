@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% set is_new = product_id is none %}
+{% block title %}{{ "New product" if is_new else "Product" }}{% endblock %}
+
+{% block content %}
+<p><a href="/products">‹ Back to products</a></p>
+<div class="page-header">
+  <h1 id="page-title">{{ "New product" if is_new else "Product" }}</h1>
+</div>
+
+<div class="two-column">
+  <section class="card form-card">
+    <h2>Details</h2>
+    <div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+    <form id="product-form" novalidate
+          data-product-id="{{ '' if is_new else product_id }}"
+          data-editable="{{ 'true' if user.is_admin else 'false' }}">
+      <div class="form-grid">
+        <div class="field">
+          <label for="code">Product code *</label>
+          <input id="code" name="code" required maxlength="30" placeholder="e.g. PRD-001" autocapitalize="characters">
+          <p class="field-error" data-error-for="code"></p>
+        </div>
+        <div class="field">
+          <label for="name">Name *</label>
+          <input id="name" name="name" required maxlength="150">
+          <p class="field-error" data-error-for="name"></p>
+        </div>
+        <div class="field">
+          <label for="category">Category *</label>
+          <input id="category" name="category" required maxlength="80" list="category-options">
+          <datalist id="category-options"></datalist>
+          <p class="field-error" data-error-for="category"></p>
+        </div>
+        <div class="field">
+          <label for="price">Price *</label>
+          <input id="price" name="price" required inputmode="decimal" placeholder="0.00">
+          <p class="field-error" data-error-for="price"></p>
+        </div>
+        <div class="field">
+          <label for="stock_quantity">{{ "Opening stock" if is_new else "Stock on hand" }}</label>
+          <input id="stock_quantity" name="stock_quantity" type="number" min="0" step="1" value="0"
+                 {% if not is_new %}readonly{% endif %}>
+          {% if not is_new %}<p class="hint">Change stock with “Adjust stock”, so every change is recorded.</p>{% endif %}
+          <p class="field-error" data-error-for="stock_quantity"></p>
+        </div>
+        <div class="field checkbox-field">
+          <label><input id="is_active" name="is_active" type="checkbox" checked> Active</label>
+        </div>
+      </div>
+
+      {% if user.is_admin %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="save-button">Save</button>
+        {% if not is_new %}<button type="button" class="btn btn-danger" id="delete-button">Delete</button>{% endif %}
+      </div>
+      {% endif %}
+    </form>
+  </section>
+
+  {% if user.is_admin and not is_new %}
+  <section class="card form-card">
+    <h2>Adjust stock</h2>
+    <div class="alert alert-error" role="alert" hidden></div>
+    <form id="adjust-form" novalidate>
+      <div class="field">
+        <label for="adjustment_type">Type</label>
+        <select id="adjustment_type" name="adjustment_type">
+          <option value="INCREASE">Increase (+)</option>
+          <option value="DECREASE">Decrease (−)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="quantity">Quantity *</label>
+        <input id="quantity" name="quantity" type="number" min="1" step="1" required>
+        <p class="field-error" data-error-for="quantity"></p>
+      </div>
+      <div class="field">
+        <label for="reason">Reason *</label>
+        <input id="reason" name="reason" required maxlength="255" placeholder="e.g. Damaged in storage">
+        <p class="field-error" data-error-for="reason"></p>
+      </div>
+      <button type="submit" class="btn btn-primary" id="adjust-button">Apply adjustment</button>
+    </form>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/product_form.js"></script>{% endblock %}

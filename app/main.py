@@ -14,6 +14,10 @@ from app.core.logging import RequestIdMiddleware, configure_logging
 from app.core.security import CsrfHeaderMiddleware
 from app.modules.auth import pages as auth_pages
 from app.modules.auth import router as auth_api
+from app.modules.customers import pages as customer_pages
+from app.modules.customers import router as customer_api
+from app.modules.products import pages as product_pages
+from app.modules.products import router as product_api
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -55,8 +59,10 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(health_router)
-    app.include_router(auth_api.router)
-    app.include_router(auth_pages.router)
+    for module_api in (auth_api, customer_api, product_api):
+        app.include_router(module_api.router)
+    for module_pages in (auth_pages, customer_pages, product_pages):
+        app.include_router(module_pages.router)
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
     return app
 

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Customers</h1>
+  {% if user.is_admin %}<a class="btn btn-primary" href="/customers/new">+ New customer</a>{% endif %}
+</div>
+
+<form id="filters" class="toolbar card" role="search">
+  <div class="field grow">
+    <label for="search">Search</label>
+    <input id="search" name="search" type="search" placeholder="Name, email or mobile" maxlength="100">
+  </div>
+  {% if user.is_admin %}
+  <div class="field">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+  {% endif %}
+</form>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<div class="card table-card">
+  <table class="data-table">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Mobile</th><th>City</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody id="rows"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+  </table>
+  <div id="pager" class="pager"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/customers_list.js"></script>{% endblock %}

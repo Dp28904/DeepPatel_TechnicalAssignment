@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ "New customer" if customer_id is none else "Customer" }}{% endblock %}
+
+{% block content %}
+<p><a href="/customers">‹ Back to customers</a></p>
+<div class="page-header">
+  <h1 id="page-title">{{ "New customer" if customer_id is none else "Customer" }}</h1>
+</div>
+
+<section class="card form-card">
+  <div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+  <form id="customer-form" novalidate
+        data-customer-id="{{ customer_id if customer_id is not none else '' }}"
+        data-editable="{{ 'true' if user.is_admin else 'false' }}">
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Name *</label>
+        <input id="name" name="name" required maxlength="150">
+        <p class="field-error" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" maxlength="255">
+        <p class="field-error" data-error-for="email"></p>
+      </div>
+      <div class="field">
+        <label for="mobile">Mobile</label>
+        <input id="mobile" name="mobile" inputmode="tel" maxlength="20" placeholder="10-15 digits">
+        <p class="field-error" data-error-for="mobile"></p>
+      </div>
+      <div class="field">
+        <label for="city">City</label>
+        <input id="city" name="city" maxlength="100">
+        <p class="field-error" data-error-for="city"></p>
+      </div>
+      <div class="field checkbox-field">
+        <label><input id="is_active" name="is_active" type="checkbox" checked> Active</label>
+      </div>
+    </div>
+
+    {% if user.is_admin %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" id="save-button">Save</button>
+      {% if customer_id is not none %}
+      <button type="button" class="btn btn-danger" id="delete-button">Delete</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/customer_form.js"></script>{% endblock %}
