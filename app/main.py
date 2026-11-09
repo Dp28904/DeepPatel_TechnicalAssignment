@@ -16,6 +16,8 @@ from app.modules.auth import pages as auth_pages
 from app.modules.auth import router as auth_api
 from app.modules.customers import pages as customer_pages
 from app.modules.customers import router as customer_api
+from app.modules.orders import pages as order_pages
+from app.modules.orders import router as order_api
 from app.modules.products import pages as product_pages
 from app.modules.products import router as product_api
 
@@ -59,9 +61,9 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(health_router)
-    for module_api in (auth_api, customer_api, product_api):
+    for module_api in (auth_api, customer_api, product_api, order_api):
         app.include_router(module_api.router)
-    for module_pages in (auth_pages, customer_pages, product_pages):
+    for module_pages in (auth_pages, customer_pages, product_pages, order_pages):
         app.include_router(module_pages.router)
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
     return app

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ "Sales orders" if user.is_admin else "My orders" }}</h1>
+  <a class="btn btn-primary" href="/orders/new">+ New order</a>
+</div>
+
+<form id="filters" class="toolbar card" role="search">
+  <div class="field grow">
+    <label for="search">Search</label>
+    <input id="search" name="search" type="search" placeholder="Order number or customer" maxlength="100">
+  </div>
+  <div class="field">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">All</option>
+      <option value="DRAFT">Draft</option>
+      <option value="CONFIRMED">Confirmed</option>
+      <option value="CANCELLED">Cancelled</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="from">From</label>
+    <input id="from" name="from" type="date">
+  </div>
+  <div class="field">
+    <label for="to">To</label>
+    <input id="to" name="to" type="date">
+  </div>
+</form>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<div class="card table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Order no.</th><th>Date</th><th>Customer</th><th class="num">Items</th>
+        <th class="num">Grand total</th><th>Status</th>{% if user.is_admin %}<th>Created by</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody id="rows"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+  </table>
+  <div id="pager" class="pager"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/orders_list.js"></script>{% endblock %}

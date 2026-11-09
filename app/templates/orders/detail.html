@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Order{% endblock %}
+
+{% block content %}
+<p><a href="/orders">‹ Back to orders</a></p>
+
+<div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+<section id="order-view" data-order-id="{{ order_id }}" hidden>
+  <div class="page-header">
+    <h1><span id="order-number"></span> <span id="order-status"></span></h1>
+    <div class="form-actions">
+      <a id="edit-button" class="btn btn-ghost" hidden>Edit</a>
+      <button type="button" id="confirm-button" class="btn btn-primary" hidden>Confirm order</button>
+      <button type="button" id="cancel-button" class="btn btn-danger" hidden>Cancel order</button>
+    </div>
+  </div>
+
+  <section class="card">
+    <dl class="meta-grid">
+      <div><dt>Customer</dt><dd id="customer"></dd></div>
+      <div><dt>Order date</dt><dd id="order-date"></dd></div>
+      <div><dt>Created by</dt><dd id="created-by"></dd></div>
+      <div><dt>Created</dt><dd id="created-at"></dd></div>
+      <div id="confirmed-block" hidden><dt>Confirmed</dt><dd id="confirmed-at"></dd></div>
+      <div id="cancelled-block" hidden><dt>Cancelled</dt><dd id="cancelled-at"></dd></div>
+    </dl>
+  </section>
+
+  <div id="stock-problems" class="alert alert-error" hidden></div>
+
+  <section class="card table-card">
+    <table class="data-table">
+      <thead>
+        <tr><th>Code</th><th>Product</th><th class="num">Quantity</th><th class="num">Rate</th><th class="num">Amount</th><th class="num" id="stock-header">In stock</th></tr>
+      </thead>
+      <tbody id="item-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card totals-card">
+    <dl class="totals">
+      <dt>Subtotal</dt><dd id="subtotal"></dd>
+      <dt id="discount-label">Discount</dt><dd id="discount-amount"></dd>
+      <dt class="grand">Grand total</dt><dd class="grand" id="grand-total"></dd>
+    </dl>
+  </section>
+</section>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/order_detail.js"></script>{% endblock %}

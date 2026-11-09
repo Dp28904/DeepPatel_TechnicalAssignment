@@ -38,3 +38,12 @@ def add(db: Session, customer: Customer) -> Customer:
 def delete(db: Session, customer: Customer) -> None:
     db.delete(customer)
     db.flush()
+
+
+def get_for_share(db: Session, customer_id: int) -> Customer | None:
+    return db.scalar(
+        select(Customer)
+        .where(Customer.id == customer_id)
+        .with_for_update(read=True)  # FOR SHARE
+        .execution_options(populate_existing=True)
+    )
