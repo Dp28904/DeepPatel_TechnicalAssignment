@@ -1,0 +1,7 @@
+product_code,product_name,category,price,stock_quantity,status
+smp-001,Free Sample Sticker,Promotions,0,500,Active
+SMP-002,Industrial Server Rack,Infrastructure,9999999.99,1,Active
+SMP-003,"Cable, Braided ""Pro"" 3m",Cables,449.5,0,Active
+  SMP-004  ,  Trimmed Spaces Item  ,  Accessories  ,  250.00  ,  7  ,  Active  
+SMP-005,Bulk Warehouse Screws,Hardware,0.01,1000000000,Active
+SMP-006,Legacy Parallel Printer,Printers,1999,3,INACTIVE

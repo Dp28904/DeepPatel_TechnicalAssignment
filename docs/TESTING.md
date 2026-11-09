@@ -1,6 +1,6 @@
 # Testing
 
-**517 automated tests** cover the application and the debugging exercise.
+**519 automated tests** cover the application and the debugging exercise.
 
 | Check | Result |
 |---|---|
@@ -15,7 +15,7 @@ The tests use a real MySQL database, `sales_test`, because row locks, CHECK cons
 
 ```bash
 docker compose up -d mysql               # MySQL 8.4 with sales_db and sales_test
-pytest                                   # all 517 tests (about a minute)
+pytest                                   # all 519 tests (about a minute)
 pytest --cov=app --cov=debugging         # with coverage
 pytest debugging                         # only the debugging exercise (no database needed)
 pytest tests/unit                        # only the pure unit tests (no database needed)
@@ -58,7 +58,7 @@ Safety: the suite refuses to run unless the database name ends in `_test`. The s
 | `tests/integration/test_users_cli_seed.py` | 7 | The account CLI and the seed script (idempotent, `--reset`) |
 | `tests/integration/test_master_data_pages.py`, `test_order_pages.py` | 20 | HTML pages render for the right roles; login redirects |
 | `tests/unit/test_calculations.py` | 20 | Order maths: worked example, half-up rounding, limits |
-| `tests/unit/test_csv_validator.py` | 31 | CSV parsing: headers, BOM, quoting, every row rule, duplicates |
+| `tests/unit/test_csv_validator.py` | 33 | CSV parsing: headers, BOM, quoting, every row rule, duplicates |
 | `tests/unit/test_money.py`, `test_security.py`, `test_app_basics.py` | 29 | Rounding, password hashing, safe redirects, JSON 404/405, request ids |
 | `debugging/test_calculate_total.py` | 36 | Part 11: the bug reproduced, the fix, and every edge case |
 

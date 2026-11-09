@@ -1,0 +1,11 @@
+product_code,product_name,category,price,stock_quantity,status
+SMP-201,Price Above Maximum,Accessories,10000000,1,Active
+SMP-202,Stock Above Maximum,Accessories,100,1000000001,Active
+SMP-203,NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN,Accessories,100,1,Active
+SMP-2040000000000000000000000000,Code Longer Than 30 Characters,Accessories,100,1,Active
+SMP-205,Category Too Long,CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,100,1,Active
+SMP-206,Name With	Tab,Accessories,100,1,Active
+SMP-207,Price With Thousands Separator,Accessories,"1,500",1,Active
+SMP-208,Scientific Stock,Accessories,100,1e2,Active
+SMP-209,Empty Status,Accessories,100,1,
+SMP-210,Missing Values,Accessories

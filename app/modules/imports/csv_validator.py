@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from pydantic import ValidationError
 
 from app.core.constants import CSV_MAX_ROWS
+from app.core.validation_messages import format_number
 from app.modules.products.schemas import ProductCreate
 
 REQUIRED_COLUMNS = (
@@ -94,7 +95,7 @@ def _friendly_message(column: str, error: dict) -> str:
     if kind == "greater_than_equal" and str(ctx.get("ge")) == "0":
         return f"{label} cannot be negative."
     if kind == "less_than_equal":
-        return f"{label} is too large (maximum {ctx.get('le')})."
+        return f"{label} is too large (maximum {format_number(ctx.get('le'))})."
     if kind == "decimal_max_places":
         return f"{label} can have at most 2 decimal places."
     if kind in ("decimal_parsing", "decimal_type") or (kind == "value_error" and column == "price"):

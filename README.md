@@ -271,7 +271,7 @@ schemas, services and the database constraints.
 
 ```bash
 docker compose up -d mysql               # the tests need the sales_test database
-pytest                                   # all 517 tests (about a minute)
+pytest                                   # all 519 tests (about a minute)
 pytest --cov=app --cov=debugging         # with coverage (98%)
 pytest -k required                       # only the 9 scenarios required by Part 12
 pytest debugging                         # only the debugging exercise (no database needed)
@@ -288,7 +288,7 @@ ends in `_test`. See [docs/TESTING.md](docs/TESTING.md) for the full list.
 |---|---|
 | [samples/products_valid.csv](samples/products_valid.csv) | Imports successfully |
 | [samples/products_invalid.csv](samples/products_invalid.csv) | Every row problem the importer detects; nothing is imported |
-| [samples/test_uploads/](samples/test_uploads/) | Extra files for manual testing: flexible header order, bad headers, duplicate codes, existing codes, a non-CSV file |
+| [samples/test_uploads/](samples/test_uploads/) | 15 extra files for manual testing, numbered `NN_valid_…` or `NN_invalid_…`: flexible header order, edge values (price 0, maximum price, quotes, spaces), a 50-product bulk file, bad headers, row errors, limits, duplicate and existing codes (any letter case), an empty file, a header-only file, a semicolon-separated file and a non-CSV file |
 
 ## Project structure
 

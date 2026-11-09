@@ -76,6 +76,17 @@ def test_quoted_values_with_commas():
         ("A-1,Item,Cat,1,2.5,Active", "stock_quantity", "whole number"),
         ("A-1,Item,Cat,1,abc,Active", "stock_quantity", "whole number"),
         ("A-1,Item,Cat,1,-3,Active", "stock_quantity", "Stock quantity cannot be negative."),
+        # Limits are shown as people write numbers, never as Python's "Decimal('...')".
+        (
+            "A-1,Item,Cat,10000000,1,Active",
+            "price",
+            "Price is too large (maximum 9,999,999.99).",
+        ),
+        (
+            "A-1,Item,Cat,1,1000000001,Active",
+            "stock_quantity",
+            "Stock quantity is too large (maximum 1,000,000,000).",
+        ),
         ("A-1,Item,Cat,1,1,Pending", "status", "Status must be 'Active' or 'Inactive'"),
         ("A-1,Item,Cat,1,1,", "status", "Status must be 'Active' or 'Inactive'"),
     ],

@@ -56,11 +56,11 @@ def field_label(loc: tuple) -> str:
     return text[0].upper() + text[1:]
 
 
-def _number(value) -> str:
+def format_number(value) -> str:
     """Format a limit for people: 1000000 -> "1,000,000", Decimal("20") -> "20".
 
     FastAPI may pass Decimal limits through as the text "Decimal('20')", so that
-    form is unwrapped too.
+    form is unwrapped too. Shared with the CSV import's error messages.
     """
     if isinstance(value, str):
         match = re.fullmatch(r"Decimal\('([^']*)'\)", value)
@@ -71,7 +71,7 @@ def _number(value) -> str:
             return value
     if isinstance(value, Decimal | float):
         value = int(value) if value == int(value) else value
-    return f"{value:,}" if isinstance(value, int) else str(value)
+    return f"{value:,}" if isinstance(value, int | Decimal) else str(value)
 
 
 def friendly_message(error: dict) -> str:
@@ -103,13 +103,13 @@ def friendly_message(error: dict) -> str:
     if kind in ("decimal_max_digits", "decimal_whole_digits"):
         return f"{label} is too large."
     if kind == "greater_than_equal":
-        return f"{label} must be {_number(ctx.get('ge'))} or more."
+        return f"{label} must be {format_number(ctx.get('ge'))} or more."
     if kind == "greater_than":
-        return f"{label} must be more than {_number(ctx.get('gt'))}."
+        return f"{label} must be more than {format_number(ctx.get('gt'))}."
     if kind == "less_than_equal":
-        return f"{label} must be {_number(ctx.get('le'))} or less."
+        return f"{label} must be {format_number(ctx.get('le'))} or less."
     if kind == "less_than":
-        return f"{label} must be less than {_number(ctx.get('lt'))}."
+        return f"{label} must be less than {format_number(ctx.get('lt'))}."
     if kind in ("bool_type", "bool_parsing"):
         return f"{label} must be true or false."
     if kind == "enum":

@@ -1,0 +1,3 @@
+product_code,product_name,category,price,stock_quantity,status
+prd-001,Keyboard lowercase code (already exists as PRD-001),Accessories,1500,5,Active
+SMP-101,Brand New Mouse Pad,Accessories,299,10,Active
