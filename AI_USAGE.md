@@ -11,9 +11,9 @@ of the code, and I am ready to modify it in the interview.
 
 ## Tools used
 
-| Tool | What I used it for |
-|---|---|
-| Claude Code (Anthropic), inside VS Code | Turning my plan into code, writing tests and repetitive code, reviewing my changes, drafting documentation and commit messages |
+| Tool                                      | What I used it for                                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Claude (Anthropic) inside Antigravity IDE | Turning my plan into code, writing tests and repetitive code, reviewing my changes, drafting documentation and commit messages |
 
 I did not use any other AI tool for this assignment.
 
@@ -135,13 +135,13 @@ constraints, and asked it to implement or check against them.
 
 Problems I found in AI-generated work and had fixed:
 
-| # | Problem | How I found it | Fix |
-|---|---|---|---|
-| 1 | A very large page number (`?page=10^20`), the date `9999-12-31`, very large stock values and very large order totals each caused a **500** error | Sending extreme inputs to every endpoint | Inputs are now bounded and validated, each case returns a clear 409 or 422, and each has a regression test ([docs/TESTING.md](docs/TESTING.md#bugs-found-and-fixed)) |
-| 2 | Money fields accepted `"1e2"` and `"1_000"`, because Python's `Decimal` parses those forms | Same edge-case testing | Money and discount values must now be a plain number such as `1500.50` |
-| 3 | When I uploaded my out-of-range CSV, the error said `Price is too large (maximum Decimal('9999999.99')).`, which shows Python internals to the user | Uploading my own test file (`samples/test_uploads/10_invalid_limits_and_formats.csv`) | The CSV validator now uses the same number formatter as the API (`maximum 9,999,999.99`), with two regression tests |
-| 4 | A draft of the README said order items are removed by `ON DELETE CASCADE` when a Draft line is removed. That is wrong: orders are never deleted, and the application deletes the removed lines | Checking each README claim against the code | Corrected before committing |
-| 5 | The order service's docstring pointed to `docs/CONCURRENCY.md`, which did not exist yet, and the test counts in `docs/TESTING.md` were out of date | My final check of the docs against the PDF and the repo | Wrote the missing document and corrected the counts after re-running the suite |
+| #   | Problem                                                                                                                                                                                        | How I found it                                                                        | Fix                                                                                                                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | A very large page number (`?page=10^20`), the date `9999-12-31`, very large stock values and very large order totals each caused a **500** error                                               | Sending extreme inputs to every endpoint                                              | Inputs are now bounded and validated, each case returns a clear 409 or 422, and each has a regression test ([docs/TESTING.md](docs/TESTING.md#bugs-found-and-fixed)) |
+| 2   | Money fields accepted `"1e2"` and `"1_000"`, because Python's `Decimal` parses those forms                                                                                                     | Same edge-case testing                                                                | Money and discount values must now be a plain number such as `1500.50`                                                                                               |
+| 3   | When I uploaded my out-of-range CSV, the error said `Price is too large (maximum Decimal('9999999.99')).`, which shows Python internals to the user                                            | Uploading my own test file (`samples/test_uploads/10_invalid_limits_and_formats.csv`) | The CSV validator now uses the same number formatter as the API (`maximum 9,999,999.99`), with two regression tests                                                  |
+| 4   | A draft of the README said order items are removed by `ON DELETE CASCADE` when a Draft line is removed. That is wrong: orders are never deleted, and the application deletes the removed lines | Checking each README claim against the code                                           | Corrected before committing                                                                                                                                          |
+| 5   | The order service's docstring pointed to `docs/CONCURRENCY.md`, which did not exist yet, and the test counts in `docs/TESTING.md` were out of date                                             | My final check of the docs against the PDF and the repo                               | Wrote the missing document and corrected the counts after re-running the suite                                                                                       |
 
 The main limitation I saw was that the assistant writes confident documentation that is not always
 true for the actual code (row 4 above), and it does not try unusual inputs unless asked (rows 1
