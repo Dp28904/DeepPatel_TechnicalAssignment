@@ -1,7 +1,10 @@
 {# Links are hidden by role for convenience only; every route also checks permissions on the server. #}
 {% set path = request.url.path %}
 <header class="topbar">
-  <a class="brand" href="/">Sales &amp; Inventory</a>
+  <a class="brand" href="/" aria-label="Sales &amp; Inventory Management, dashboard">
+    <img class="brand-logo" src="/static/img/logo.svg" width="34" height="34" alt="">
+    <span class="brand-text"><span class="brand-name">Sales &amp; Inventory</span><span class="brand-sub">Management</span></span>
+  </a>
   <nav class="nav-links">
     <a href="/" {% if path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
     <a href="/customers" {% if path.startswith("/customers") %}aria-current="page"{% endif %}>Customers</a>
@@ -9,12 +12,16 @@
     <a href="/orders" {% if path.startswith("/orders") %}aria-current="page"{% endif %}>{{ "Orders" if user.is_admin else "My orders" }}</a>
     {% if user.is_admin %}
     <a href="/reports" {% if path.startswith("/reports") %}aria-current="page"{% endif %}>Reports</a>
+    <a href="/users" {% if path.startswith("/users") %}aria-current="page"{% endif %}>Users</a>
     <a href="/imports/products" {% if path.startswith("/imports") %}aria-current="page"{% endif %}>Import</a>
     {% endif %}
   </nav>
   <div class="user-box">
-    <span class="user-name">{{ user.name }}</span>
-    <span class="badge badge-{{ user.role.value | lower }}">{{ "Admin" if user.is_admin else "Sales User" }}</span>
+    <a class="user-chip{% if path == '/account' %} is-current{% endif %}" href="/account" title="My account">
+      <span class="user-avatar" aria-hidden="true">{{ user.name[:1] | upper }}</span>
+      <span class="user-name">{{ user.name }}</span>
+      <span class="badge badge-{{ user.role.value | lower }}">{{ "Admin" if user.is_admin else "Sales User" }}</span>
+    </a>
     <button type="button" id="logout-button" class="btn btn-ghost btn-sm">Log out</button>
   </div>
 </header>

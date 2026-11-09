@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import pytest
 from sqlalchemy import func, select
 
 from app.core.enums import MovementType
@@ -41,7 +40,7 @@ def test_required_9_csv_with_an_invalid_row_imports_nothing(admin_client, db_ses
     assert response.status_code == 422
     error = response.json()["error"]
     assert error["code"] == "csv_invalid"
-    assert "No products were imported" in error["message"]
+    assert error["message"].startswith("Nothing was imported: we found 1 problem(s)")
     assert error["details"] == [
         {"row": 3, "field": "price", "message": "Price cannot be negative."}
     ]
@@ -155,13 +154,7 @@ def test_import_page_is_admin_only(admin_client, sales_client):
     assert sales_client.get("/imports/products").status_code == 403
 
 
-@pytest.mark.parametrize("name", ["valid", "invalid"])
-def test_admin_can_download_sample_files(admin_client, name):
-    response = admin_client.get(f"/imports/products/samples/{name}")
-    assert response.status_code == 200
-    assert response.text.startswith(HEADER)
-
-
-def test_unknown_sample_name_returns_404(admin_client):
-    assert admin_client.get("/imports/products/samples/..%2F.env").status_code == 404
-    assert admin_client.get("/imports/products/samples/other").status_code == 404
+def test_import_page_no_longer_offers_sample_downloads(admin_client):
+    page = admin_client.get("/imports/products").text
+    assert "samples/valid" not in page and "code-block" not in page
+    assert admin_client.get("/imports/products/samples/valid").status_code == 404

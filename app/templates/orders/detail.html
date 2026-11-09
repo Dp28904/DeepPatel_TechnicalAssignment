@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% from "partials/back_link.html" import back_link %}
 {% block title %}Order{% endblock %}
 
 {% block content %}
-<p><a href="/orders">‹ Back to orders</a></p>
+{{ back_link("/orders", "Back to orders") }}
 
 <div id="form-error" class="alert alert-error" role="alert" hidden></div>
 

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "partials/back_link.html" import back_link %}
+{% block title %}New user{% endblock %}
+
+{% block content %}
+{{ back_link("/users", "Back to users") }}
+<div class="page-header"><h1>New user</h1></div>
+
+<section class="card form-card new-user-card">
+  <div id="form-error" class="alert alert-error" role="alert" hidden></div>
+  <form id="new-user-form" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Full name *</label>
+        <input id="name" name="name" required maxlength="150" autocomplete="off">
+        <p class="field-error" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="email">Login email (username) *</label>
+        <input id="email" name="email" type="email" required maxlength="255" autocomplete="off" placeholder="name@company.com">
+        <p class="field-error" data-error-for="email"></p>
+      </div>
+    </div>
+
+    <fieldset class="role-picker">
+      <legend>Role *</legend>
+      <label class="role-option">
+        <input type="radio" name="role" value="SALES" checked>
+        <span><strong>Sales User</strong><small>Creates and manages their own orders; sees active customers and products.</small></span>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="role" value="ADMIN">
+        <span><strong>Admin</strong><small>Full access: master data, stock, all orders, reports, import and users.</small></span>
+      </label>
+      <p class="field-error" data-error-for="role"></p>
+    </fieldset>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="password">Password * <span class="muted">(at least 8 characters)</span></label>
+        <input id="password" name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+        <p class="field-error" data-error-for="password"></p>
+      </div>
+      <div class="field">
+        <label for="confirm_password">Repeat password *</label>
+        <input id="confirm_password" name="confirm_password" type="password" required maxlength="128" autocomplete="new-password">
+        <p class="field-error" data-error-for="confirm_password"></p>
+      </div>
+    </div>
+    <p class="hint">Share the password with the new user securely. Only an Admin can change a Sales User's password later.</p>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" id="create-button">Create user</button>
+      <a class="btn btn-ghost" href="/users">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}<script type="module" src="/static/js/user_new.js"></script>{% endblock %}

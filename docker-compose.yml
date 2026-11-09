@@ -25,5 +25,27 @@ services:
       retries: 30
       start_period: 20s
 
+  # The web application. `docker compose up --build` starts MySQL and the app together.
+  # For local development without Docker for the app, start only MySQL:
+  #   docker compose up -d mysql
+  app:
+    build: .
+    image: sales-inventory-app:latest
+    container_name: sales_app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Inside the compose network the database host is the service name "mysql".
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-sales_app}:${MYSQL_PASSWORD:-sales_app_pw}@mysql:3306/${MYSQL_DATABASE:-sales_db}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env (copy .env.example to .env first)}
+      SEED_ON_START: ${SEED_ON_START:-true}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
 volumes:
   mysql_data:

@@ -1,0 +1,10 @@
+product_code,product_name,category,price,stock_quantity,status
+TST-101,Portable SSD 1TB,Storage,7499,12,Active
+TST-102,Pen Drive 64GB,Storage,549.00,80,Active
+TST-103,External HDD 2TB,Storage,5899.50,4,Active
+TST-201,Wireless Earbuds,Audio,2999,25,Active
+TST-202,Soundbar 2.1,Audio,8499.99,2,Active
+TST-301,"Cable Organizer, Velcro",Accessories,199,60,Active
+TST-302,Laptop Cooling Pad,Accessories,1299,0,Active
+TST-401,Printer Ink Black,Consumables,899,18,Active
+TST-902,Dial-up Modem,Networking,450,1,Inactive

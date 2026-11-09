@@ -23,6 +23,21 @@ Exact dependency versions are pinned in [requirements.txt](requirements.txt) and
 
 ## Quick start
 
+### Option A: everything in Docker (fastest)
+
+Prerequisites: Docker with Compose v2.
+
+```bash
+cp .env.example .env     # then set SECRET_KEY and the sample passwords
+docker compose up --build
+```
+
+Then open http://localhost:8000. The app container waits for MySQL, applies the migrations and
+loads the sample data. Seeding is safe to repeat. Set `SEED_ON_START=false` in `.env` to skip it,
+or `APP_PORT` to use another port.
+
+### Option B: run the app locally (development)
+
 Prerequisites: Python 3.12, Docker (or an existing MySQL 8.x server), Git.
 
 ```bash
@@ -58,6 +73,10 @@ committed.
 | Admin | `admin@example.com` | value of `SEED_ADMIN_PASSWORD` |
 | Sales User | `sales1@example.com` | value of `SEED_SALES1_PASSWORD` |
 | Sales User | `sales2@example.com` | value of `SEED_SALES2_PASSWORD` |
+
+An Admin can change a Sales User's name, login email and password on the **Users** page, and their own
+name, email and password (current password required) on **My account**. Sales Users cannot change
+passwords; they ask an Admin. A password change signs that user out of every other session.
 
 To create more accounts (the password is prompted for and never stored in shell history):
 

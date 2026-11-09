@@ -1,0 +1,6 @@
+{# Shared "back" button used at the top of detail and form pages. #}
+{% macro back_link(href, label) -%}
+<nav class="breadcrumb" aria-label="Back">
+  <a class="back-link" href="{{ href }}"><span class="back-arrow" aria-hidden="true">←</span> {{ label }}</a>
+</nav>
+{%- endmacro %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}My account{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>My account</h1>
+  <span class="badge badge-{{ user.role.value | lower }}">{{ "Admin" if user.is_admin else "Sales User" }}</span>
+</div>
+
+<div class="two-column" id="account" data-user-id="{{ user.id }}">
+  <section class="card form-card">
+    <h2>Name and login</h2>
+    {% if user.is_admin %}
+    <div class="alert alert-error" role="alert" hidden></div>
+    <form id="profile-form" novalidate>
+      <div class="field">
+        <label for="name">Name *</label>
+        <input id="name" name="name" required maxlength="150" value="{{ user.name }}" autocomplete="name">
+        <p class="field-error" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="email">Login email (username) *</label>
+        <input id="email" name="email" type="email" required maxlength="255" value="{{ user.email }}" autocomplete="username">
+        <p class="field-error" data-error-for="email"></p>
+      </div>
+      <button type="submit" class="btn btn-primary" id="profile-save">Save changes</button>
+    </form>
+    {% else %}
+    <dl class="meta-grid account-details">
+      <div><dt>Name</dt><dd>{{ user.name }}</dd></div>
+      <div><dt>Login email</dt><dd>{{ user.email }}</dd></div>
+    </dl>
+    {% endif %}
+  </section>
+
+  <section class="card form-card">
+    <h2>Password</h2>
+    {% if user.is_admin %}
+    <div class="alert alert-error" role="alert" hidden></div>
+    <form id="password-form" novalidate>
+      <div class="field">
+        <label for="current_password">Current password *</label>
+        <input id="current_password" name="current_password" type="password" required maxlength="128" autocomplete="current-password">
+        <p class="field-error" data-error-for="current_password"></p>
+      </div>
+      <div class="field">
+        <label for="new_password">New password * <span class="muted">(at least 8 characters)</span></label>
+        <input id="new_password" name="new_password" type="password" minlength="8" maxlength="128" required autocomplete="new-password">
+        <p class="field-error" data-error-for="new_password"></p>
+      </div>
+      <div class="field">
+        <label for="confirm_password">Repeat new password *</label>
+        <input id="confirm_password" name="confirm_password" type="password" maxlength="128" required autocomplete="new-password">
+        <p class="field-error" data-error-for="confirm_password"></p>
+      </div>
+      <button type="submit" class="btn btn-primary" id="password-save">Change password</button>
+      <p class="hint">Any other device signed in to your account will be signed out.</p>
+    </form>
+    {% else %}
+    <div class="info-box">
+      <strong>Need a new password, name or email?</strong>
+      <p>For security, only an Admin can change these for a Sales User. Please ask your Admin.</p>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}{% if user.is_admin %}<script type="module" src="/static/js/account.js"></script>{% endif %}{% endblock %}

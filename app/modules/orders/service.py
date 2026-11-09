@@ -28,6 +28,7 @@ from sqlalchemy.orm import Session
 
 from app.core.constants import ORDER_NUMBER_PREFIX
 from app.core.database import transaction, utc_now
+from app.core.dates import validate_date_range
 from app.core.enums import MovementType, OrderStatus
 from app.core.exceptions import Conflict, NotFound, ValidationFailed
 from app.core.pagination import PageParams, paginate
@@ -80,8 +81,7 @@ def list_orders(
     date_from: date | None = None,
     date_to: date | None = None,
 ) -> dict:
-    if date_from and date_to and date_from > date_to:
-        raise ValidationFailed("'From' date must be on or before 'To' date.")
+    validate_date_range(date_from, date_to)
     statement = repository.search_statement(
         created_by=None if user.is_admin else user.id,
         status=status,

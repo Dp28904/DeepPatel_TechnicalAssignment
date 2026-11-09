@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% from "partials/back_link.html" import back_link %}
 {% set is_new = order_id is none %}
 {% block title %}{{ "New order" if is_new else "Edit order" }}{% endblock %}
 
 {% block content %}
-<p><a href="{{ '/orders' if is_new else '/orders/' ~ order_id }}">‹ Back</a></p>
+{% if is_new %}{{ back_link("/orders", "Back to orders") }}{% else %}{{ back_link("/orders/" ~ order_id, "Back to order") }}{% endif %}
 <div class="page-header">
   <h1 id="page-title">{{ "New sales order" if is_new else "Edit order" }}</h1>
   <span class="badge badge-draft">Draft</span>

@@ -16,6 +16,7 @@ from app.modules.auth import pages as auth_pages
 from app.modules.auth import router as auth_api
 from app.modules.customers import pages as customer_pages
 from app.modules.customers import router as customer_api
+from app.modules.dashboard import router as dashboard_api
 from app.modules.imports import pages as import_pages
 from app.modules.imports import router as import_api
 from app.modules.orders import pages as order_pages
@@ -24,6 +25,8 @@ from app.modules.products import pages as product_pages
 from app.modules.products import router as product_api
 from app.modules.reports import pages as report_pages
 from app.modules.reports import router as report_api
+from app.modules.users import pages as user_pages
+from app.modules.users import router as user_api
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -39,6 +42,11 @@ def health():
             content=error_body("database_unavailable", "The database is not reachable."),
         )
     return {"status": "ok", "database": "ok"}
+
+
+# HEAD (used by some uptime monitors) runs the same check; hidden from the API docs
+# so the GET and HEAD operations do not share one OpenAPI operation id.
+health_router.add_api_route("/health", health, methods=["HEAD"], include_in_schema=False)
 
 
 def create_app() -> FastAPI:
@@ -65,7 +73,16 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(health_router)
-    for module_api in (auth_api, customer_api, product_api, order_api, import_api, report_api):
+    for module_api in (
+        auth_api,
+        customer_api,
+        product_api,
+        order_api,
+        import_api,
+        report_api,
+        dashboard_api,
+        user_api,
+    ):
         app.include_router(module_api.router)
     for module_pages in (
         auth_pages,
@@ -74,6 +91,7 @@ def create_app() -> FastAPI:
         order_pages,
         import_pages,
         report_pages,
+        user_pages,
     ):
         app.include_router(module_pages.router)
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")

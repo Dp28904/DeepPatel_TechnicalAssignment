@@ -220,3 +220,62 @@ def test_unknown_page_returns_html_404(sales_client):
     response = sales_client.get("/no-such-page")
     assert response.status_code == 404
     assert "text/html" in response.headers["content-type"]
+
+
+# --- Login page and validation messages ------------------------------------------------
+def test_login_page_has_poster_and_accessible_form(client, migrated_database):
+    html = client.get("/login").text
+    assert 'class="login-stage"' in html and "<svg" in html  # full-screen design + illustration
+    assert 'autocomplete="username"' in html and 'autocomplete="current-password"' in html
+    assert 'id="password-toggle"' in html and 'id="caps-warning"' in html
+    assert "Ask your Admin" in html
+
+
+@pytest.mark.parametrize(
+    ("payload", "expected"),
+    [
+        ({}, {"email": "Email is required.", "password": "Password is required."}),
+        (
+            {"email": "", "password": ""},
+            {"email": "Email is required.", "password": "Password is required."},
+        ),
+        (
+            {"email": "a@b.co", "password": "x" * 129},
+            {"password": "Password must be at most 128 characters."},
+        ),
+    ],
+)
+def test_login_validation_messages_are_plain(client, migrated_database, payload, expected):
+    response = client.post(LOGIN, json=payload)
+    assert response.status_code == 422
+    assert {d["field"]: d["message"] for d in response.json()["error"]["details"]} == expected
+
+
+def test_login_password_is_not_trimmed(client, db_session):
+    from app.core.enums import Role
+    from app.modules.users import service as user_service
+    from app.modules.users.schemas import UserCreate
+
+    user_service.create_user(
+        db_session,
+        UserCreate(name="S", email="space@example.com", password="  pad me  ", role=Role.SALES),
+    )
+    assert (
+        client.post(LOGIN, json={"email": "space@example.com", "password": "pad me"}).status_code
+        == 401
+    )
+    assert (
+        client.post(
+            LOGIN, json={"email": "space@example.com", "password": "  pad me  "}
+        ).status_code
+        == 200
+    )
+
+
+def test_logo_is_served_and_used_on_login_header_and_tab(client, sales_client):
+    logo = client.get("/static/img/logo.svg")
+    assert logo.status_code == 200 and "image/svg+xml" in logo.headers["content-type"]
+    login_page = client.get("/login").text
+    assert 'class="stage-logo" src="/static/img/logo.svg"' in login_page
+    assert 'rel="icon" type="image/svg+xml" href="/static/img/logo.svg"' in login_page
+    assert 'class="brand-logo" src="/static/img/logo.svg"' in sales_client.get("/").text

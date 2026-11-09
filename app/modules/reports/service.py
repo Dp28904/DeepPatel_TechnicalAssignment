@@ -1,11 +1,11 @@
 """Report business rules: input checks, totals and consistent money formatting."""
 
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time
 
 from sqlalchemy.orm import Session
 
+from app.core.dates import validate_date_range
 from app.core.enums import MovementType
-from app.core.exceptions import ValidationFailed
 from app.core.money import ZERO, round_money
 from app.core.pagination import PageParams, paginate
 from app.modules.inventory.schemas import StockMovementOut
@@ -24,9 +24,7 @@ from app.modules.reports.schemas import (
 
 
 def _check_range(date_from: date | None, date_to: date | None) -> DateRange:
-    if date_from and date_to and date_from > date_to:
-        message = "'From' date must be on or before 'To' date."
-        raise ValidationFailed(message, details=[{"field": "from", "message": message}])
+    validate_date_range(date_from, date_to)
     return DateRange(date_from=date_from, date_to=date_to)
 
 
@@ -98,12 +96,13 @@ def stock_movements(
     date_to: date | None,
 ) -> dict:
     _check_range(date_from, date_to)
-    # Movement timestamps are stored in UTC; the range covers whole days, so the
-    # end bound is "before the start of the day after date_to".
+    # Movement timestamps are stored in UTC; the range covers whole days, from the
+    # first to the last moment of each day. (Adding a day to date_to would overflow
+    # for 9999-12-31.)
     statement = repository.stock_movements_statement(
         product_id=product_id,
         movement_type=movement_type,
         created_from=datetime.combine(date_from, time.min) if date_from else None,
-        created_before=datetime.combine(date_to + timedelta(days=1), time.min) if date_to else None,
+        created_to=datetime.combine(date_to, time.max) if date_to else None,
     )
     return paginate(db, statement, params, StockMovementOut.from_model)

@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.access import can_see, visible_status
+from app.core.constants import MAX_STOCK_QUANTITY
 from app.core.enums import MovementType, StatusFilter
 from app.core.exceptions import Conflict, NotFound
 from app.core.pagination import PageParams, paginate
@@ -166,6 +167,20 @@ def adjust_stock(
             f"{product.stock_quantity} in stock. Stock cannot go below zero.",
             code="insufficient_stock",
             details=[{"field": "quantity", "message": f"At most {product.stock_quantity}."}],
+        )
+
+    if new_quantity > MAX_STOCK_QUANTITY:
+        db.rollback()
+        raise Conflict(
+            f"Cannot add {data.quantity} unit(s) to '{product.code}': stock would be "
+            f"{new_quantity:,}, above the maximum of {MAX_STOCK_QUANTITY:,}.",
+            code="stock_limit_exceeded",
+            details=[
+                {
+                    "field": "quantity",
+                    "message": f"At most {MAX_STOCK_QUANTITY - product.stock_quantity:,}.",
+                }
+            ],
         )
 
     product.stock_quantity = new_quantity

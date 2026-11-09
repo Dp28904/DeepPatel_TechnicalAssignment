@@ -1,27 +1,109 @@
 {% extends "base.html" %}
 {% block title %}Log in{% endblock %}
+{% block main_class %}login-main{% endblock %}
 
 {% block content %}
-<section class="login-card card">
-  <h1>Sales &amp; Inventory</h1>
-  <p class="muted">Log in to continue.</p>
+<div class="login-stage">
+  {# --- Full-screen background: gradient, glows, grid and two floating illustrations --- #}
+  <div class="stage-glow stage-glow-1" aria-hidden="true"></div>
+  <div class="stage-glow stage-glow-2" aria-hidden="true"></div>
+  <div class="stage-grid" aria-hidden="true"></div>
 
-  <div id="form-error" class="alert alert-error" role="alert" hidden></div>
+  <svg class="stage-art stage-art-left" viewBox="0 0 320 230" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="art-card" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef2ff"/></linearGradient>
+      <linearGradient id="art-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".35"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/></linearGradient>
+    </defs>
+    <rect x="10" y="10" width="300" height="200" rx="16" fill="url(#art-card)"/>
+    <circle cx="32" cy="32" r="5" fill="#f87171"/><circle cx="48" cy="32" r="5" fill="#fbbf24"/><circle cx="64" cy="32" r="5" fill="#34d399"/>
+    <rect x="30" y="52" width="80" height="36" rx="7" fill="#dbeafe"/><rect x="38" y="61" width="40" height="6" rx="3" fill="#93c5fd"/><rect x="38" y="73" width="60" height="8" rx="4" fill="#1d4ed8"/>
+    <rect x="120" y="52" width="80" height="36" rx="7" fill="#dcfce7"/><rect x="128" y="61" width="40" height="6" rx="3" fill="#86efac"/><rect x="128" y="73" width="50" height="8" rx="4" fill="#15803d"/>
+    <rect x="210" y="52" width="80" height="36" rx="7" fill="#ffedd5"/><rect x="218" y="61" width="40" height="6" rx="3" fill="#fdba74"/><rect x="218" y="73" width="56" height="8" rx="4" fill="#c2410c"/>
+    <line x1="30" y1="190" x2="290" y2="190" stroke="#cbd5e1"/>
+    <path d="M30 178 L70 166 L110 172 L150 142 L190 150 L230 120 L270 110 L290 104 L290 190 L30 190 Z" fill="url(#art-area)"/>
+    <path d="M30 178 L70 166 L110 172 L150 142 L190 150 L230 120 L270 110 L290 104" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="290" cy="104" r="5" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+  </svg>
 
-  <form id="login-form" novalidate data-next="{{ next_path }}">
-    <div class="field">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" autocomplete="username" required autofocus>
-      <p class="field-error" data-error-for="email"></p>
+  <svg class="stage-art stage-art-right" viewBox="0 0 260 240" aria-hidden="true" focusable="false">
+    <g transform="rotate(6 160 80)">
+      <rect x="110" y="10" width="110" height="140" rx="12" fill="#ffffff"/>
+      <rect x="126" y="30" width="62" height="8" rx="4" fill="#1e3a8a"/>
+      <rect x="126" y="50" width="78" height="6" rx="3" fill="#cbd5e1"/>
+      <rect x="126" y="64" width="68" height="6" rx="3" fill="#cbd5e1"/>
+      <rect x="126" y="78" width="74" height="6" rx="3" fill="#cbd5e1"/>
+      <line x1="126" y1="96" x2="204" y2="96" stroke="#e2e8f0" stroke-width="2"/>
+      <rect x="126" y="106" width="36" height="8" rx="4" fill="#64748b"/>
+      <rect x="170" y="106" width="34" height="8" rx="4" fill="#1d4ed8"/>
+    </g>
+    <circle cx="212" cy="150" r="22" fill="#16a34a" stroke="#ffffff" stroke-width="5"/>
+    <path d="M202 150 L209 157 L223 142" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="20" y="150" width="76" height="66" rx="8" fill="#f59e0b"/><rect x="20" y="150" width="76" height="14" rx="7" fill="#fbbf24"/><rect x="52" y="150" width="12" height="66" fill="#fde68a" opacity=".7"/>
+    <rect x="96" y="168" width="64" height="48" rx="8" fill="#d97706"/><rect x="96" y="168" width="64" height="12" rx="6" fill="#f59e0b"/><rect x="122" y="168" width="11" height="48" fill="#fcd34d" opacity=".6"/>
+    <rect x="48" y="102" width="64" height="50" rx="8" fill="#fbbf24"/><rect x="48" y="102" width="64" height="12" rx="6" fill="#fcd34d"/><rect x="74" y="102" width="11" height="50" fill="#fef3c7" opacity=".7"/>
+  </svg>
+
+  {# --- Centre: brand, sign-in card, feature chips --- #}
+  <div class="stage-center">
+    <div class="stage-brand">
+      <img class="stage-logo" src="/static/img/logo.svg" width="56" height="56" alt="Sales &amp; Inventory logo">
+      <div>
+        <p class="stage-name">Sales &amp; Inventory</p>
+        <p class="stage-tagline">Orders, stock and sales in one place</p>
+      </div>
     </div>
-    <div class="field">
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required>
-      <p class="field-error" data-error-for="password"></p>
-    </div>
-    <button type="submit" class="btn btn-primary btn-block">Log in</button>
-  </form>
-</section>
+
+    <section class="login-card-v2" aria-labelledby="login-title">
+      <h1 id="login-title">Welcome back</h1>
+      <p class="login-sub">Sign in to continue to your workspace.</p>
+
+      <div id="form-error" class="alert alert-error" role="alert" hidden></div>
+
+      <form id="login-form" novalidate data-next="{{ next_path }}">
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-with-icon">
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 6h16v12H4z M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="username"
+                   maxlength="255" required autofocus placeholder="name@company.com"
+                   aria-describedby="email-error">
+          </div>
+          <p class="field-error" id="email-error" data-error-for="email"></p>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-with-icon">
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </span>
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   maxlength="128" required placeholder="Your password"
+                   aria-describedby="password-error caps-warning">
+            <button type="button" class="password-toggle" id="password-toggle"
+                    aria-controls="password" aria-pressed="false">Show</button>
+          </div>
+          <p class="caps-warning" id="caps-warning" hidden>⚠ Caps Lock is on</p>
+          <p class="field-error" id="password-error" data-error-for="password"></p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-login" id="login-button">Sign in</button>
+      </form>
+
+      <p class="login-help">Forgot your password? Ask your Admin to set a new one.</p>
+    </section>
+
+    <ul class="stage-points" aria-label="What you can do">
+      <li><span aria-hidden="true">✓</span> Totals calculated for you</li>
+      <li><span aria-hidden="true">✓</span> Stock that is always right</li>
+      <li><span aria-hidden="true">✓</span> Reports with charts</li>
+    </ul>
+  </div>
+
+  <p class="stage-footer">Sales &amp; Inventory Management</p>
+</div>
 {% endblock %}
 
 {% block scripts %}<script type="module" src="/static/js/login.js"></script>{% endblock %}

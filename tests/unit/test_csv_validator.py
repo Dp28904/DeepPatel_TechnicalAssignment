@@ -69,7 +69,7 @@ def test_quoted_values_with_commas():
         ("A-1,,Cat,1,1,Active", "product_name", "Product name is required."),
         ("A-1,Item,,1,1,Active", "category", "Category is required."),
         ("A-1,Item,Cat,,1,Active", "price", "Price is required."),
-        ("A-1,Item,Cat,abc,1,Active", "price", "Price must be a number."),
+        ("A-1,Item,Cat,abc,1,Active", "price", "Price must be a number, such as 1500"),
         ("A-1,Item,Cat,-0.01,1,Active", "price", "Price cannot be negative."),
         ("A-1,Item,Cat,1.005,1,Active", "price", "at most 2 decimal places"),
         ("A-1,Item,Cat,1,,Active", "stock_quantity", "Stock quantity is required."),

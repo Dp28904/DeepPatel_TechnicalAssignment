@@ -1,0 +1,29 @@
+# Keep the image small and free of secrets and local state.
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+.venv
+venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+.idea
+.vscode
+.DS_Store
+
+# Not needed at runtime
+tests
+debugging
+docs
+sql
+*.md
+Makefile
+Dockerfile
+docker-compose.yml
+requirements-dev.txt
+pyproject.toml

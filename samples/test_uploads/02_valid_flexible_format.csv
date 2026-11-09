@@ -1,0 +1,5 @@
+﻿Status,PRICE,Product_Name,product_code,Category,stock_quantity
+active,2150,Wi-Fi Router AC1200,TST-501,Networking,10
+
+ACTIVE,1199.5,Network Switch 8 Port,TST-502,Networking,6
+inactive,99,RJ45 Connector (Pack of 10),TST-503,Networking,0

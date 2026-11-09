@@ -1,0 +1,4 @@
+product_code,product_name,category,price,stock_quantity,status
+PRD-001,Keyboard (duplicate of seed data),Accessories,1500,5,Active
+PRD-101,24-inch Monitor (duplicate of seed data),Displays,11500,2,Active
+TST-851,Brand New Tablet Stand,Accessories,899,9,Active

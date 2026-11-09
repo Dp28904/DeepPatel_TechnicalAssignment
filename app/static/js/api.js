@@ -30,7 +30,7 @@ export async function api(method, url, { body, button, redirectOn401 = true } = 
     try {
       response = await fetch(url, options);
     } catch {
-      throw new ApiError(0, "network_error", "Could not reach the server. Check your connection.");
+      throw new ApiError(0, "network_error", "Could not reach the server. Check your internet connection and try again.");
     }
 
     const data = response.status === 204 ? null : await response.json().catch(() => null);
@@ -41,12 +41,12 @@ export async function api(method, url, { body, button, redirectOn401 = true } = 
       window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
     }
     const error = data?.error ?? {};
-    throw new ApiError(
-      response.status,
-      error.code ?? "http_error",
-      error.message ?? `Request failed (${response.status}).`,
-      error.details ?? null,
-    );
+    let message = error.message ?? `Something went wrong (error ${response.status}). Please try again.`;
+    if (error.code === "internal_error" && error.details?.request_id) {
+      // Non-technical users get a clear next step; support gets an id to find the log line.
+      message += ` If it keeps happening, contact support and quote reference ${error.details.request_id}.`;
+    }
+    throw new ApiError(response.status, error.code ?? "http_error", message, error.code === "internal_error" ? null : error.details ?? null);
   } finally {
     if (button) button.disabled = false;
   }

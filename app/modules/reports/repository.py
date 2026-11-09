@@ -100,7 +100,7 @@ def stock_movements_statement(
     product_id: int | None,
     movement_type: MovementType | None,
     created_from: datetime | None,
-    created_before: datetime | None,
+    created_to: datetime | None,
 ) -> Select:
     statement = select(StockMovement).options(
         selectinload(StockMovement.order), selectinload(StockMovement.creator)
@@ -111,6 +111,6 @@ def stock_movements_statement(
         statement = statement.where(StockMovement.movement_type == movement_type)
     if created_from is not None:
         statement = statement.where(StockMovement.created_at >= created_from)
-    if created_before is not None:
-        statement = statement.where(StockMovement.created_at < created_before)
+    if created_to is not None:
+        statement = statement.where(StockMovement.created_at <= created_to)
     return statement.order_by(StockMovement.created_at.desc(), StockMovement.id.desc())
