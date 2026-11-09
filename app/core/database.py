@@ -101,13 +101,26 @@ def transaction(db: Session) -> Iterator[None]:
         raise
 
 
-def ping_database() -> bool:
+def database_problem() -> str | None:
+    """None if the database answers; otherwise a readable reason (password hidden).
+
+    Used at start-up so a failed connection explains itself, e.g. "Access denied for
+    user 'avnadmin'" (wrong password) or a TLS certificate error.
+    """
     try:
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
-        return True
-    except OperationalError:
-        return False
+        return None
+    except Exception as exc:  # noqa: BLE001 - every failure must be reported, not raised
+        reason = str(getattr(exc, "orig", None) or exc)
+        password = engine.url.password
+        if password:
+            reason = reason.replace(str(password), "***")
+        return f"{type(getattr(exc, 'orig', None) or exc).__name__}: {reason}"
+
+
+def ping_database() -> bool:
+    return database_problem() is None
 
 
 # MySQL error codes raised when row locks collide.

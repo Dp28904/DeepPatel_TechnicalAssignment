@@ -10,7 +10,7 @@ import time
 from pydantic import ValidationError
 
 try:
-    from app.core.database import ping_database
+    from app.core.database import database_problem
 except ValidationError as exc:
     # Print only the reasons, never the setting values (they include secrets).
     for error in exc.errors():
@@ -19,12 +19,16 @@ except ValidationError as exc:
         print(f"Configuration error: {name + ': ' if name else ''}{reason}", file=sys.stderr)
     sys.exit(1)
 
+problem = None
 for attempt in range(1, 61):
-    if ping_database():
+    problem = database_problem()
+    if problem is None:
         print("Database is ready.")
         sys.exit(0)
+    if attempt == 1 or attempt % 10 == 0:
+        print(f"Database not reachable yet (attempt {attempt}/60): {problem}", file=sys.stderr)
     time.sleep(2)
-print("Database did not become ready in time.", file=sys.stderr)
+print(f"Database did not become ready in time. Last error: {problem}", file=sys.stderr)
 sys.exit(1)
 PY
 
