@@ -45,7 +45,12 @@ Render deploys from a Git repository. The repo must contain `Dockerfile`, `rende
 3. Under **Environment**, add the variables listed in `render.yaml`. Generate `SECRET_KEY` with:
    `python -c "import secrets; print(secrets.token_urlsafe(48))"`
 
-**Both options:** add the certificate. Under **Environment → Secret Files**, add a file named **`ca.pem`** and paste the contents of Aiven's `ca.pem`. Render mounts it at `/etc/secrets/ca.pem`, which is the value of `DATABASE_SSL_CA`.
+**Both options:** add the certificate in one of two ways.
+
+- **Secret File (default in `render.yaml`).** Under **Environment → Secret Files**, add a file named exactly **`ca.pem`** and paste the contents of Aiven's `ca.pem`. Render mounts it at `/etc/secrets/ca.pem`, which is the value of `DATABASE_SSL_CA`.
+- **Or an environment variable.** Delete `DATABASE_SSL_CA` and add **`DATABASE_SSL_CA_PEM`**, pasting the whole certificate as its value (from `-----BEGIN CERTIFICATE-----` to `-----END CERTIFICATE-----`).
+
+If neither is set correctly, the deploy log says so plainly, e.g. *"Configuration error: DATABASE_SSL_CA points to '/etc/secrets/ca.pem', but no file exists there…"*.
 
 Then click **Deploy**. The deploy log should show:
 
@@ -67,7 +72,8 @@ Open `https://<service-name>.onrender.com` and log in with `SEED_ADMIN_EMAIL` an
 | `APP_ENV` | `production` | Marks the session cookie `Secure` (HTTPS only) |
 | `SECRET_KEY` | generated | Signs session cookies. Never reuse your local one. |
 | `DATABASE_URL` | Aiven URL (above) | The database connection |
-| `DATABASE_SSL_CA` | `/etc/secrets/ca.pem` | Enables verified TLS to Aiven |
+| `DATABASE_SSL_CA` | `/etc/secrets/ca.pem` | Enables verified TLS to Aiven (certificate as a Secret File) |
+| `DATABASE_SSL_CA_PEM` | the certificate text | Alternative to `DATABASE_SSL_CA`: the certificate pasted into a variable |
 | `SEED_ON_START` | `true` (then `false` if you like) | Loads sample data on start |
 | `SEED_*_EMAIL` / `SEED_*_PASSWORD` | your choice | Sample accounts for the demo |
 | `PORT` | set by Render | The app listens on it automatically |

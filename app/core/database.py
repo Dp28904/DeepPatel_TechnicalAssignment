@@ -4,6 +4,7 @@ Transactions are owned by the service layer: a service calls ``session.commit()`
 once at the end of a unit of work, and any exception rolls everything back.
 """
 
+import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -33,10 +34,32 @@ def utc_now() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
+def _ca_file_from_text(pem: str) -> str:
+    """Write a certificate given as text (DATABASE_SSL_CA_PEM) to a private temp file."""
+    text = pem.replace("\\n", "\n").strip() + "\n"  # accept literal "\n" from one-line pastes
+    with tempfile.NamedTemporaryFile("w", suffix=".pem", prefix="db-ca-", delete=False) as handle:
+        handle.write(text)
+    return handle.name
+
+
 def connect_args() -> dict:
-    """Driver options: verified TLS when DATABASE_SSL_CA is set (hosted MySQL)."""
-    ca_path = get_settings().database_ssl_ca
-    return {"ssl": {"ca": ca_path}} if ca_path else {}
+    """Driver options for TLS to a hosted MySQL.
+
+    - CA certificate given: encrypted AND the server's identity is verified (best).
+    - Only ssl-mode REQUIRED/PREFERRED: encrypted, identity not verified (like the
+      MySQL client's REQUIRED mode).
+    - Otherwise: plain connection (local development).
+    """
+    settings = get_settings()
+    if settings.database_ssl_mode == "DISABLED":
+        return {}
+    if settings.database_ssl_ca_pem:
+        return {"ssl": {"ca": _ca_file_from_text(settings.database_ssl_ca_pem)}}
+    if settings.database_ssl_ca:
+        return {"ssl": {"ca": settings.database_ssl_ca}}
+    if settings.database_ssl_mode in ("REQUIRED", "PREFERRED"):
+        return {"ssl": {"verify_mode": False}}
+    return {}
 
 
 engine = create_engine(
