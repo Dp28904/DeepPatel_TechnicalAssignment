@@ -33,8 +33,15 @@ def utc_now() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
+def connect_args() -> dict:
+    """Driver options: verified TLS when DATABASE_SSL_CA is set (hosted MySQL)."""
+    ca_path = get_settings().database_ssl_ca
+    return {"ssl": {"ca": ca_path}} if ca_path else {}
+
+
 engine = create_engine(
     get_settings().database_url,
+    connect_args=connect_args(),
     pool_pre_ping=True,  # drop dead connections instead of failing a request
     pool_recycle=3600,
     isolation_level="REPEATABLE READ",  # InnoDB default, stated explicitly

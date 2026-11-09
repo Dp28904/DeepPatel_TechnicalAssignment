@@ -82,6 +82,12 @@ Shortcuts are available in the [Makefile](Makefile): `make up`, `make install`, 
 
 Interactive API documentation is served at http://localhost:8000/docs while the app runs.
 
+### Option C: public demo on Render (optional)
+
+The app can be deployed to Render from the same `Dockerfile`, with a hosted MySQL (Render has no
+MySQL of its own). See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and the Blueprint in
+[render.yaml](render.yaml).
+
 ## Sample accounts and data
 
 `python -m db.seed` creates three accounts. Their emails and passwords come from the `SEED_*`

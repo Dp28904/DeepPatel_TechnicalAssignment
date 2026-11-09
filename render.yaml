@@ -1,0 +1,36 @@
+# Render Blueprint: deploys the web app from the Dockerfile.
+# The MySQL database is hosted elsewhere (Render has no managed MySQL) - see docs/DEPLOYMENT.md.
+services:
+  - type: web
+    name: sales-inventory
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production            # session cookie is marked Secure (HTTPS only)
+      - key: SECRET_KEY
+        generateValue: true          # Render creates a strong random value
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        sync: false                  # entered in the dashboard: mysql+pymysql://USER:PASSWORD@HOST:PORT/defaultdb
+      - key: DATABASE_SSL_CA
+        value: /etc/secrets/ca.pem   # upload the database's CA certificate as Secret File "ca.pem"
+      - key: SEED_ON_START
+        value: "true"                # sample data on first start; safe to repeat (existing rows are skipped)
+      - key: SEED_ADMIN_EMAIL
+        value: admin@example.com
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_SALES1_EMAIL
+        value: sales1@example.com
+      - key: SEED_SALES1_PASSWORD
+        sync: false
+      - key: SEED_SALES2_EMAIL
+        value: sales2@example.com
+      - key: SEED_SALES2_PASSWORD
+        sync: false

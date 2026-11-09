@@ -12,6 +12,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
+from app.core.database import connect_args
 from app.models import Base
 
 config = context.config
@@ -45,7 +46,10 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     connectable = engine_from_config(
-        {"sqlalchemy.url": get_url()}, prefix="sqlalchemy.", poolclass=pool.NullPool
+        {"sqlalchemy.url": get_url()},
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+        connect_args=connect_args(),  # TLS for hosted MySQL, same as the app
     )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

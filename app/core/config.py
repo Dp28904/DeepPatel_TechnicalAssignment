@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     database_url: str
     test_database_url: str | None = None
+    # Path to the CA certificate of a hosted MySQL that requires TLS (e.g. Aiven on
+    # Render: upload ca.pem as a Secret File, then set /etc/secrets/ca.pem). Unset = no TLS.
+    database_ssl_ca: str | None = None
 
     @property
     def is_production(self) -> bool:
